@@ -71,6 +71,7 @@ model User {
   email         String    @unique
   emailVerified DateTime?
   image         String?
+  password      String?   // For credentials login
   bio           String?   @db.Text
   website       String?
   location      String?
