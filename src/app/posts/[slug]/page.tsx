@@ -359,67 +359,7 @@ export default function PostPage() {
             )}
 
             {/* Comments Section */}
-            <div className="mb-12">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                Comments ({comments.length})
-              </h3>
-              
-              {/* Comment Form */}
-              <Card className="mb-8">
-                <CardContent className="p-6">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                    Leave a Comment
-                  </h4>
-                  <form className="space-y-4">
-                    <textarea
-                      rows={4}
-                      placeholder="Write your comment..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <button
-                      type="submit"
-                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      Post Comment
-                    </button>
-                  </form>
-                </CardContent>
-              </Card>
-
-              {/* Comments List */}
-              <div className="space-y-6">
-                {comments.map((comment) => (
-                  <Card key={comment.id}>
-                    <CardContent className="p-6">
-                      <div className="flex items-start space-x-4">
-                        {comment.author.image ? (
-                          <img
-                            src={comment.author.image}
-                            alt={comment.author.name}
-                            className="w-10 h-10 rounded-full"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-                            <User className="w-5 h-5 text-gray-600" />
-                          </div>
-                        )}
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <h4 className="font-medium text-gray-900">
-                              {comment.author.name}
-                            </h4>
-                            <span className="text-sm text-gray-500">
-                              {formatRelativeTime(comment.createdAt)}
-                            </span>
-                          </div>
-                          <p className="text-gray-700">{comment.content}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
+            <CommentSection postId={post.id} initialComments={comments} />
           </div>
 
           {/* Sidebar */}
