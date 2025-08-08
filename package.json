@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "npm run setup:check && next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -11,10 +11,14 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "type-check": "tsc --noEmit",
+    "setup": "node scripts/setup.js",
+    "setup:check": "node scripts/check-setup.js",
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "db:reset": "prisma migrate reset --force",
+    "postinstall": "node -e \"if (!process.env.CI && !process.env.SKIP_SETUP) require('./scripts/check-setup.js').main()\""
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
