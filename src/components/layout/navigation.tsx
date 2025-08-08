@@ -14,6 +14,7 @@ import {
   LayoutDashboard
 } from "lucide-react"
 import { Dropdown } from "@/components/ui/dropdown"
+import { SearchWithSuggestions } from "@/components/ui/search"
 
 export function Navigation() {
   const { data: session } = useSession()
@@ -94,19 +95,25 @@ export function Navigation() {
             {/* Search */}
             <div className="relative">
               {searchOpen ? (
-                <div className="flex items-center">
-                  <input
-                    type="text"
-                    placeholder="Search..."
-                    className="w-64 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    autoFocus
-                    onBlur={() => setSearchOpen(false)}
-                  />
-                </div>
+                <SearchWithSuggestions
+                  placeholder="Search posts, categories, tags..."
+                  onSearch={(query) => {
+                    if (query.trim()) {
+                      window.location.href = `/search?q=${encodeURIComponent(query)}`
+                    }
+                  }}
+                  onSuggestionClick={(suggestion) => {
+                    window.location.href = suggestion.url
+                  }}
+                  className="w-64"
+                />
               ) : (
                 <button
+                  type="button"
                   onClick={() => setSearchOpen(true)}
                   className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                  title="Search"
+                  aria-label="Open search"
                 >
                   <Search className="w-5 h-5" />
                 </button>
@@ -117,7 +124,7 @@ export function Navigation() {
             {session ? (
               <Dropdown
                 trigger={
-                  <button className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 transition-colors">
+                  <button type="button" className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 transition-colors">
                     {session.user.image ? (
                       <img
                         className="h-8 w-8 rounded-full"
@@ -158,6 +165,7 @@ export function Navigation() {
           {/* Mobile menu button */}
           <div className="sm:hidden flex items-center">
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 transition-colors"
             >
@@ -226,6 +234,7 @@ export function Navigation() {
                 {userMenuItems.map((item) => (
                   <button
                     key={item.value}
+                    type="button"
                     onClick={() => {
                       item.onClick()
                       setMobileMenuOpen(false)

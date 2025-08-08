@@ -225,6 +225,7 @@ export function SearchWithSuggestions({
           ))}
           <div className="px-4 py-2 border-t border-gray-100 bg-gray-50">
             <button
+              type="button"
               onClick={() => {
                 window.location.href = `/search?q=${encodeURIComponent(query)}`
                 setIsOpen(false)
@@ -289,6 +290,7 @@ export function SearchWithResults({
           {displayResults.map((result) => (
             <button
               key={result.id}
+              type="button"
               onClick={() => handleResultClick(result)}
               className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors"
             >
