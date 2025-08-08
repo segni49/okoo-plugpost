@@ -337,3 +337,20 @@ model Newsletter {
 
   @@map("newsletter")
 }
+
+// Performance Monitoring
+model PerformanceMetric {
+  id        String   @id @default(cuid())
+  metric    String
+  value     Float
+  timestamp DateTime
+  url       String?
+  userAgent String?
+  clientIP  String?
+  metadata  String?  @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([metric, timestamp])
+  @@index([timestamp])
+  @@map("performance_metrics")
+}
