@@ -103,6 +103,143 @@ interface SearchWithResultsProps extends SearchProps {
   maxResults?: number
 }
 
+interface Suggestion {
+  text: string
+  type: string
+  url: string
+}
+
+interface SearchWithSuggestionsProps extends SearchProps {
+  onSuggestionClick: (suggestion: Suggestion) => void
+  showSuggestions?: boolean
+}
+
+export function SearchWithSuggestions({
+  onSuggestionClick,
+  showSuggestions = true,
+  ...searchProps
+}: SearchWithSuggestionsProps) {
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
+  const [isOpen, setIsOpen] = useState(false)
+  const [query, setQuery] = useState("")
+  const containerRef = useRef<HTMLDivElement>(null)
+  const debounceRef = useRef<NodeJS.Timeout>()
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const fetchSuggestions = async (searchQuery: string) => {
+    if (searchQuery.length < 2) {
+      setSuggestions([])
+      setIsOpen(false)
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(searchQuery)}&limit=5`)
+      if (response.ok) {
+        const data = await response.json()
+        setSuggestions(data.suggestions)
+        setIsOpen(data.suggestions.length > 0 && showSuggestions)
+      }
+    } catch (error) {
+      console.error("Error fetching suggestions:", error)
+    }
+  }
+
+  const handleSearch = (searchQuery: string) => {
+    setQuery(searchQuery)
+    searchProps.onSearch(searchQuery)
+
+    // Debounce suggestions
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
+
+    debounceRef.current = setTimeout(() => {
+      fetchSuggestions(searchQuery)
+    }, 300)
+  }
+
+  const handleSuggestionClick = (suggestion: Suggestion) => {
+    onSuggestionClick(suggestion)
+    setIsOpen(false)
+    setQuery(suggestion.text)
+  }
+
+  const getSuggestionIcon = (type: string) => {
+    switch (type) {
+      case "post":
+        return "📄"
+      case "category":
+        return "📁"
+      case "tag":
+        return "🏷️"
+      default:
+        return "🔍"
+    }
+  }
+
+  return (
+    <div ref={containerRef} className="relative">
+      <Search
+        {...searchProps}
+        onSearch={handleSearch}
+        onClear={() => {
+          searchProps.onClear?.()
+          setIsOpen(false)
+          setSuggestions([])
+          setQuery("")
+        }}
+      />
+
+      {isOpen && suggestions.length > 0 && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-64 overflow-y-auto">
+          {suggestions.map((suggestion, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={() => handleSuggestionClick(suggestion)}
+              className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors"
+            >
+              <div className="flex items-center space-x-3">
+                <span className="text-lg">{getSuggestionIcon(suggestion.type)}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-900 truncate">
+                    {suggestion.text}
+                  </div>
+                  <div className="text-xs text-gray-500 capitalize">
+                    {suggestion.type}
+                  </div>
+                </div>
+              </div>
+            </button>
+          ))}
+          <div className="px-4 py-2 border-t border-gray-100 bg-gray-50">
+            <button
+              onClick={() => {
+                window.location.href = `/search?q=${encodeURIComponent(query)}`
+                setIsOpen(false)
+              }}
+              className="text-xs text-blue-600 hover:text-blue-800"
+            >
+              See all results for "{query}"
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function SearchWithResults({
   results,
   onResultClick,
