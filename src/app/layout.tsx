@@ -1,37 +1,48 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import AuthProvider from "@/components/providers/session-provider";
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { Providers } from "@/components/providers"
+import { Navigation } from "@/components/layout/navigation"
+import { Footer } from "@/components/layout/footer"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "PlugPost Blog - Modern Blog Platform",
-  description: "A comprehensive, feature-rich blog platform built with Next.js",
-};
+  title: "PlugPost - Modern Blog Platform",
+  description: "Discover amazing stories, insights, and ideas from our community of writers.",
+  keywords: ["blog", "articles", "stories", "writing", "community"],
+  authors: [{ name: "PlugPost Team" }],
+  openGraph: {
+    title: "PlugPost - Modern Blog Platform",
+    description: "Discover amazing stories, insights, and ideas from our community of writers.",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PlugPost - Modern Blog Platform",
+    description: "Discover amazing stories, insights, and ideas from our community of writers.",
+  },
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+      <body className={inter.className}>
+        <Providers>
+          <div className="min-h-screen flex flex-col">
+            <Navigation />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+          </div>
+        </Providers>
       </body>
     </html>
-  );
+  )
 }
