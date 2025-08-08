@@ -18,6 +18,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Loading } from "@/components/ui/loading"
 import { formatDate, formatRelativeTime, calculateReadingTime } from "@/lib/utils"
+import { CommentSection } from "@/components/comments/comment-section"
 
 interface Post {
   id: string
@@ -264,6 +265,7 @@ export default function PostPage() {
           {/* Actions */}
           <div className="flex items-center space-x-4">
             <button
+              type="button"
               onClick={handleLike}
               className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                 isLiked
@@ -274,8 +276,9 @@ export default function PostPage() {
               <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
               <span>{likeCount}</span>
             </button>
-            
+
             <button
+              type="button"
               onClick={handleShare}
               className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
             >
