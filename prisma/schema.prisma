@@ -5,9 +5,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// prisma/schema.prisma
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url  	    = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 // NextAuth.js required models
@@ -88,6 +90,7 @@ model User {
   posts         Post[]
   comments      Comment[]
   likes         Like[]
+  commentLikes  CommentLike[]
   bookmarks     Bookmark[]
   followers     Follow[] @relation("UserFollowers")
   following     Follow[] @relation("UserFollowing")
@@ -207,6 +210,7 @@ model Comment {
   content   String   @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
 
   // Relations
   authorId String
@@ -219,7 +223,24 @@ model Comment {
   parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies  Comment[] @relation("CommentReplies")
 
+  // Likes
+  likes CommentLike[]
+
   @@map("comments")
+}
+
+model CommentLike {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId String
+
+  @@unique([userId, commentId])
+  @@map("comment_likes")
 }
 
 model Like {
