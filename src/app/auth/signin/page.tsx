@@ -34,8 +34,10 @@ export default function SignInPage() {
           router.push("/")
         }
       }
-    } catch (error) {
-      setError("An error occurred. Please try again.")
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError("An error occurred. Please try again.")
+      }
     } finally {
       setIsLoading(false)
     }
