@@ -96,7 +96,7 @@ export function generateSlug(title: string): string {
     .replace(/[^a-z0-9 -]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
-    .trim("-")
+    .replace(/^-+|-+$/g, "")
 }
 
 // Utility function to calculate read time

@@ -60,7 +60,7 @@ export function PostEditor({
         .replace(/[^a-z0-9 -]/g, "")
         .replace(/\s+/g, "-")
         .replace(/-+/g, "-")
-        .trim("-")
+        .replace(/^-+|-+$/g, "")
       setValue("slug", slug)
     }
   }, [title, setValue, initialData?.slug])
