@@ -41,9 +41,12 @@ class PerformanceMonitor {
         const fidObserver = new PerformanceObserver((list) => {
           const entries = list.getEntries()
           entries.forEach((entry) => {
-            this.recordMetric("FID", entry.processingStart - entry.startTime, {
-              eventType: entry.name,
-            })
+            const e = entry as PerformanceEventTiming
+            if (typeof e.processingStart === "number" && typeof e.startTime === "number") {
+              this.recordMetric("FID", e.processingStart - e.startTime, {
+                eventType: e.name,
+              })
+            }
           })
         })
         fidObserver.observe({ entryTypes: ["first-input"] })

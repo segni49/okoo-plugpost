@@ -285,7 +285,7 @@ export function moderateContent(content: string): {
   }
   
   return {
-    approved: score < 50,
+    approved: score < 50 && !flags.includes("potential_spam"),
     flags,
     score,
   }

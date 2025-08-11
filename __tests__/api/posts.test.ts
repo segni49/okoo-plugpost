@@ -1,4 +1,6 @@
 import { createMocks } from 'node-mocks-http'
+import { NextRequest } from 'next/server'
+
 import { GET, POST } from '@/app/api/posts/route'
 import { prisma } from '@/lib/prisma'
 
@@ -36,12 +38,9 @@ describe('/api/posts', () => {
       ;(prisma.post.findMany as jest.Mock).mockResolvedValue(mockPosts)
       ;(prisma.post.count as jest.Mock).mockResolvedValue(1)
 
-      const { req } = createMocks({
-        method: 'GET',
-        url: '/api/posts',
-      })
+      const req = new NextRequest('http://localhost/api/posts')
 
-      const response = await GET(req)
+      const response = await GET(req as any)
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -71,12 +70,9 @@ describe('/api/posts', () => {
       ;(prisma.post.findMany as jest.Mock).mockResolvedValue(mockPosts)
       ;(prisma.post.count as jest.Mock).mockResolvedValue(1)
 
-      const { req } = createMocks({
-        method: 'GET',
-        url: '/api/posts?categoryId=1',
-      })
+      const req = new NextRequest('http://localhost/api/posts?categoryId=1')
 
-      const response = await GET(req)
+      const response = await GET(req as any)
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -94,12 +90,9 @@ describe('/api/posts', () => {
       ;(prisma.post.findMany as jest.Mock).mockResolvedValue(mockPosts)
       ;(prisma.post.count as jest.Mock).mockResolvedValue(0)
 
-      const { req } = createMocks({
-        method: 'GET',
-        url: '/api/posts?search=test',
-      })
+      const req = new NextRequest('http://localhost/api/posts?search=test')
 
-      const response = await GET(req)
+      const response = await GET(req as any)
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -120,7 +113,7 @@ describe('/api/posts', () => {
     it('should create a new post when authenticated', async () => {
       const mockUser = {
         id: '1',
-        role: 'AUTHOR',
+        role: 'EDITOR',
         name: 'Test Author',
       }
 

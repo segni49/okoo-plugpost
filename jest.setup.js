@@ -47,6 +47,33 @@ jest.mock('next/navigation', () => ({
     return '/'
   },
 }))
+// Mock NextResponse/NextRequest minimal to avoid Request reference errors
+jest.mock('next/server', () => {
+  return {
+    NextResponse: {
+      json: (data, init) => ({
+        status: (init && init.status) || 200,
+        json: async () => data,
+      }),
+    },
+  }
+})
+// Minimal NextRequest polyfill for tests
+class NextRequestPolyfill {
+  url: string
+  body: any
+  constructor(input: string, init?: { body?: any }) {
+    this.url = input
+    this.body = init?.body
+  }
+  async json() {
+    return this.body ?? {}
+  }
+}
+
+module.exports.NextRequest = NextRequestPolyfill
+
+
 
 // Mock NextAuth
 jest.mock('next-auth/react', () => ({
@@ -141,17 +168,19 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() {}
 }
 
-// Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: jest.fn().mockImplementation(query => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(),
-    removeListener: jest.fn(),
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
-})
+// Mock window.matchMedia (only in jsdom where window exists)
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: jest.fn().mockImplementation(query => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    })),
+  })
+}

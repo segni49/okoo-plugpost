@@ -7,7 +7,7 @@ import { PostStatus, Prisma } from "@prisma/client"
 // GET /api/posts - Get all posts with filtering and pagination
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = new URL(request.url, "http://localhost")
     const query = postQuerySchema.parse(Object.fromEntries(searchParams))
 
     const where: Prisma.PostWhereInput = {}

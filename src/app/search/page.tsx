@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { Suspense, useState, useEffect, useCallback } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -61,6 +61,14 @@ interface SearchError {
 }
 
 export default function SearchPage() {
+  return (
+    <Suspense fallback={null}>
+      <SearchClient />
+    </Suspense>
+  )
+}
+
+function SearchClient() {
   const searchParams = useSearchParams()
   const initialQuery = searchParams.get("q") || ""
 

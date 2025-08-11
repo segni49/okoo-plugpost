@@ -73,6 +73,7 @@ export function RichTextEditor({
     ],
     content,
     editable,
+    immediatelyRender: false,
     onUpdate: ({ editor }) => {
       const html = editor.getHTML()
       onChange?.(html)

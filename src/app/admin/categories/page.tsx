@@ -6,6 +6,8 @@ import { Modal, ConfirmModal } from "@/components/ui/modal"
 import { Input } from "@/components/ui/input"
 import { Loading } from "@/components/ui/loading"
 import styles from "@/app/page.module.css"
+import { DataTable } from "@/components/ui/data-table"
+
 
 interface Category {
   id: string

@@ -17,7 +17,7 @@ interface DataTableProps<T> {
 }
 
 export function DataTable<T>({ columns, data, getRowKey, emptyMessage = "No data" }: DataTableProps<T>) {
-  const headers = useMemo(() => columns.map(c => c.header), [columns])
+
 
   if (!data.length) {
     return (
@@ -45,7 +45,11 @@ export function DataTable<T>({ columns, data, getRowKey, emptyMessage = "No data
             <tr key={getRowKey(row, index)}>
               {columns.map((col) => (
                 <td key={String(col.key)} className={`px-6 py-4 text-sm text-gray-700 ${col.className ?? ""}`}>
-                  {col.render ? col.render(row) : String((row as any)[col.key as keyof T] ?? "")}
+                  {col.render ? col.render(row) : (() => {
+                    const key = col.key as keyof T
+                    const value = (row as T)[key]
+                    return typeof value === "string" || typeof value === "number" ? String(value) : ""
+                  })()}
                 </td>
               ))}
             </tr>
