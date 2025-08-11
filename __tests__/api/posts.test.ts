@@ -129,19 +129,15 @@ describe('/api/posts', () => {
       getCurrentUser.mockResolvedValue(mockUser)
       ;(prisma.post.create as jest.Mock).mockResolvedValue(mockPost)
 
-      const { req } = createMocks({
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
+      const req = new NextRequest('http://localhost/api/posts', {
         body: {
           title: 'New Post',
           content: 'New content',
           status: 'DRAFT',
         },
-      })
+      } as any)
 
-      const response = await POST(req)
+      const response = await POST(req as any)
       const data = await response.json()
 
       expect(response.status).toBe(201)
