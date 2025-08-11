@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server"
+import {  NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUser } from "@/lib/auth-utils"
 import { PostStatus } from "@prisma/client"
 
 // GET /api/admin/stats - Get dashboard statistics
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const user = await getCurrentUser()
     if (!user) {

@@ -1,27 +1,23 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import { useState, useEffect, useCallback } from "react"
+import {
   ResponsiveContainer,
+  BarChart,
+  Bar,
   LineChart,
   Line,
-  PieChart,
-  Pie,
-  Cell
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip
 } from "recharts"
-import { 
-  TrendingUp, 
-  Users, 
-  FileText, 
-  MessageSquare, 
+import {
+  TrendingUp,
+  Users,
+  FileText,
+  MessageSquare,
   Eye,
-  Clock,
   Zap,
   Target
 } from "lucide-react"
@@ -86,12 +82,7 @@ export function AnalyticsDashboard() {
   const [loading, setLoading] = useState(true)
   const [period, setPeriod] = useState(30)
 
-  useEffect(() => {
-    fetchAnalytics()
-    fetchPerformance()
-  }, [period])
-
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       const response = await fetch(`/api/analytics?period=${period}&type=all`)
       if (response.ok) {
@@ -101,9 +92,9 @@ export function AnalyticsDashboard() {
     } catch (error) {
       console.error("Error fetching analytics:", error)
     }
-  }
+  }, [period])
 
-  const fetchPerformance = async () => {
+  const fetchPerformance = useCallback(async () => {
     try {
       const response = await fetch(`/api/analytics/performance?period=${period}`)
       if (response.ok) {
@@ -115,7 +106,12 @@ export function AnalyticsDashboard() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [period])
+
+  useEffect(() => {
+    fetchAnalytics()
+    fetchPerformance()
+  }, [fetchAnalytics, fetchPerformance])
 
   const getPerformanceColor = (score: number) => {
     if (score >= 90) return "text-green-600"
@@ -147,7 +143,7 @@ export function AnalyticsDashboard() {
     )
   }
 
-  const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#06B6D4"]
+
 
   return (
     <div className="space-y-6">
@@ -158,6 +154,7 @@ export function AnalyticsDashboard() {
           {[7, 30, 90].map((days) => (
             <button
               key={days}
+              type="button"
               onClick={() => setPeriod(days)}
               className={`px-3 py-1 rounded-md text-sm transition-colors ${
                 period === days
@@ -295,13 +292,13 @@ export function AnalyticsDashboard() {
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={analyticsData.dailyViews}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="date" 
-                    tickFormatter={(value) => new Date(value).toLocaleDateString()}
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={(value: string) => new Date(value).toLocaleDateString()}
                   />
                   <YAxis />
-                  <Tooltip 
-                    labelFormatter={(value) => new Date(value).toLocaleDateString()}
+                  <Tooltip
+                    labelFormatter={(value: string) => new Date(value).toLocaleDateString()}
                   />
                   <Line 
                     type="monotone" 

@@ -1,23 +1,24 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { 
-  Calendar, 
-  Clock, 
-  Eye, 
-  MessageSquare, 
-  Heart, 
+import Image from "next/image"
+import {
+  Calendar,
+  Clock,
+  Eye,
+  MessageSquare,
+  Heart,
   ArrowLeft,
   FolderOpen,
   Search
 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Loading, PostCardSkeleton } from "@/components/ui/loading"
+import { PostCardSkeleton } from "@/components/ui/loading"
 import { Pagination } from "@/components/ui/pagination"
 import { formatRelativeTime, truncateText } from "@/lib/utils"
+import styles from "./page.module.css"
 
 interface Category {
   id: string
@@ -59,7 +60,8 @@ interface Post {
 export default function CategoryPage() {
   const params = useParams()
   const slug = params.slug as string
-  
+  const categoryIconRef = useRef<HTMLDivElement>(null)
+
   const [category, setCategory] = useState<Category | null>(null)
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
@@ -68,14 +70,7 @@ export default function CategoryPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
 
-  useEffect(() => {
-    if (slug) {
-      fetchCategory()
-      fetchPosts()
-    }
-  }, [slug, currentPage, searchTerm, sortBy])
-
-  const fetchCategory = async () => {
+  const fetchCategory = useCallback(async () => {
     try {
       const response = await fetch(`/api/categories/slug/${slug}`)
       if (response.ok) {
@@ -85,9 +80,9 @@ export default function CategoryPage() {
     } catch (error) {
       console.error("Error fetching category:", error)
     }
-  }
+  }, [slug])
 
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams({
@@ -109,16 +104,31 @@ export default function CategoryPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [slug, currentPage, searchTerm, sortBy])
+
+  useEffect(() => {
+    if (slug) {
+      fetchCategory()
+      fetchPosts()
+    }
+  }, [slug, fetchCategory, fetchPosts])
+
+  // Set CSS custom property for category color
+  useEffect(() => {
+    if (category?.color && categoryIconRef.current) {
+      categoryIconRef.current.style.setProperty('--category-color', category.color)
+    }
+  }, [category?.color])
 
   const PostCard = ({ post }: { post: Post }) => (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">
       {post.featuredImage && (
         <div className="relative h-48 overflow-hidden">
-          <img
+          <Image
             src={post.featuredImage}
             alt={post.title}
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+            fill
+            className="object-cover hover:scale-105 transition-transform duration-300"
           />
         </div>
       )}
@@ -126,10 +136,12 @@ export default function CategoryPage() {
         <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
           <div className="flex items-center space-x-2">
             {post.author.image ? (
-              <img
+              <Image
                 src={post.author.image}
                 alt={post.author.name}
-                className="w-6 h-6 rounded-full"
+                width={24}
+                height={24}
+                className="rounded-full"
               />
             ) : (
               <div className="w-6 h-6 rounded-full bg-gray-300" />
@@ -196,7 +208,7 @@ export default function CategoryPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Category Not Found</h1>
-          <p className="text-gray-600 mb-6">The category you're looking for doesn't exist.</p>
+          <p className="text-gray-600 mb-6">The category you&apos;re looking for doesn&apos;t exist.</p>
           <Link
             href="/categories"
             className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -225,9 +237,9 @@ export default function CategoryPage() {
           {category && (
             <>
               <div className="flex items-center mb-6">
-                <div 
-                  className="w-16 h-16 rounded-lg flex items-center justify-center mr-6"
-                  style={{ backgroundColor: category.color }}
+                <div
+                  ref={categoryIconRef}
+                  className={`w-16 h-16 rounded-lg flex items-center justify-center mr-6 bg-gray-500 ${styles.categoryIcon}`}
                 >
                   <FolderOpen className="w-8 h-8 text-white" />
                 </div>
@@ -275,6 +287,7 @@ export default function CategoryPage() {
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label="Sort posts by"
               >
                 <option value="publishedAt">Latest</option>
                 <option value="viewCount">Most Popular</option>

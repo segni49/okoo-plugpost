@@ -48,5 +48,9 @@ export function isEditor(userRole: UserRole): boolean {
 }
 
 export function isContributor(userRole: UserRole): boolean {
-  return [UserRole.ADMIN, UserRole.EDITOR, UserRole.CONTRIBUTOR].includes(userRole)
+  return (
+    userRole === UserRole.ADMIN ||
+    userRole === UserRole.EDITOR ||
+    userRole === UserRole.CONTRIBUTOR
+  )
 }

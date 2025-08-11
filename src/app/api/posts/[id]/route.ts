@@ -6,7 +6,7 @@ import { PostStatus } from "@prisma/client"
 
 // GET /api/posts/[id] - Get a single post
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -21,7 +21,6 @@ export async function GET(
             id: true,
             name: true,
             email: true,
-            image: true,
             bio: true,
           },
         },
@@ -53,7 +52,6 @@ export async function GET(
               select: {
                 id: true,
                 name: true,
-                image: true,
               },
             },
             replies: {
@@ -62,7 +60,6 @@ export async function GET(
                   select: {
                     id: true,
                     name: true,
-                    image: true,
                   },
                 },
               },
@@ -189,7 +186,6 @@ export async function PUT(
     }
 
     // Handle tags update
-    let tagOperations = {}
     if (data.tags) {
       // Delete existing tag connections
       await prisma.postTag.deleteMany({
@@ -197,7 +193,6 @@ export async function PUT(
       })
 
       // Create new tag connections
-      const tagConnections = []
       for (const tagName of data.tags) {
         const tagSlug = generateSlug(tagName)
         const tag = await prisma.tag.upsert({
@@ -208,13 +203,12 @@ export async function PUT(
             slug: tagSlug,
           },
         })
-        tagConnections.push({ tagId: tag.id })
-      }
-
-      tagOperations = {
-        tags: {
-          create: tagConnections,
-        },
+        await prisma.postTag.create({
+          data: {
+            postId,
+            tagId: tag.id,
+          },
+        })
       }
     }
 
@@ -224,13 +218,16 @@ export async function PUT(
       publishedAt = new Date()
     }
 
+    // Prepare update data without tags (handled separately above)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { tags: _, ...updateData } = data
+
     const updatedPost = await prisma.post.update({
       where: { id: postId },
       data: {
-        ...data,
+        ...updateData,
         readTime,
         publishedAt,
-        ...tagOperations,
       },
       include: {
         author: {
@@ -238,7 +235,6 @@ export async function PUT(
             id: true,
             name: true,
             email: true,
-            image: true,
           },
         },
         category: true,
@@ -252,7 +248,7 @@ export async function PUT(
 
     return NextResponse.json({
       ...updatedPost,
-      tags: updatedPost.tags.map(pt => pt.tag),
+      tags: updatedPost.tags.map((pt: { tag: { id: string; name: string; slug: string } }) => pt.tag),
     })
   } catch (error) {
     console.error("Error updating post:", error)
@@ -271,7 +267,7 @@ export async function PUT(
 
 // DELETE /api/posts/[id] - Delete a post
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {

@@ -70,7 +70,6 @@ export async function POST(request: NextRequest) {
             id: true,
             name: true,
             email: true,
-            image: true,
           },
         },
         category: true,
@@ -96,7 +95,7 @@ export async function POST(request: NextRequest) {
 }
 
 // GET /api/posts/schedule - Get scheduled posts
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const user = await getCurrentUser()
     if (!user) {
@@ -126,7 +125,6 @@ export async function GET(request: NextRequest) {
             id: true,
             name: true,
             email: true,
-            image: true,
           },
         },
         category: {

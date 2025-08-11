@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { 
   Eye, 
   MessageCircle, 
@@ -34,11 +34,7 @@ export function PostAnalytics({ postId }: PostAnalyticsProps) {
   const [loading, setLoading] = useState(true)
   const [timeRange, setTimeRange] = useState("7d") // 7d, 30d, 90d, all
 
-  useEffect(() => {
-    fetchAnalytics()
-  }, [postId, timeRange])
-
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/posts/${postId}/analytics?range=${timeRange}`)
@@ -51,7 +47,11 @@ export function PostAnalytics({ postId }: PostAnalyticsProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [postId, timeRange])
+
+  useEffect(() => {
+    fetchAnalytics()
+  }, [postId, timeRange, fetchAnalytics])
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) {
@@ -160,6 +160,7 @@ export function PostAnalytics({ postId }: PostAnalyticsProps) {
           value={timeRange}
           onChange={(e) => setTimeRange(e.target.value)}
           className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          title="Select time range for analytics"
         >
           <option value="7d">Last 7 days</option>
           <option value="30d">Last 30 days</option>

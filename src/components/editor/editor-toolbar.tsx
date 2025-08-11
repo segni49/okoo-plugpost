@@ -4,7 +4,6 @@ import { Editor } from "@tiptap/react"
 import {
   Bold,
   Italic,
-  Underline,
   Strikethrough,
   Code,
   Heading1,
@@ -16,12 +15,9 @@ import {
   Undo,
   Redo,
   Link,
-  Image,
+  Image as ImageIcon,
   Table,
   Highlighter,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
 } from "lucide-react"
 
 interface EditorToolbarProps {
@@ -90,7 +86,7 @@ export function EditorToolbar({ editor, onAddImage, onSetLink }: EditorToolbarPr
           <Code size={16} />
         </ToolbarButton>
         <ToolbarButton
-          onClick={() => editor.chain().focus().toggleHighlight().run()}
+          onClick={() => editor.commands.toggleHighlight()}
           isActive={editor.isActive("highlight")}
           title="Highlight"
         >
@@ -161,16 +157,13 @@ export function EditorToolbar({ editor, onAddImage, onSetLink }: EditorToolbarPr
           onClick={onAddImage}
           title="Add Image"
         >
-          <Image size={16} />
+          <ImageIcon size={16} />
         </ToolbarButton>
         <ToolbarButton
-          onClick={() =>
-            editor
-              .chain()
-              .focus()
-              .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
-              .run()
-          }
+          onClick={() => {
+            editor.commands.insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+            editor.commands.focus()
+          }}
           title="Insert Table"
         >
           <Table size={16} />

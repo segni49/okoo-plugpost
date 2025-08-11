@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { FolderOpen, FileText, ArrowRight } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Loading } from "@/components/ui/loading"
+import styles from "./page.module.css"
 
 interface Category {
   id: string
@@ -69,7 +71,7 @@ export default function CategoriesPage() {
             Browse Categories
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Explore our content organized by topics. Find exactly what you're looking for.
+            Explore our content organized by topics. Find exactly what you&apos;re looking for.
           </p>
         </div>
 
@@ -80,9 +82,9 @@ export default function CategoriesPage() {
               <Card key={category.id} className="overflow-hidden hover:shadow-lg transition-shadow h-full">
                 <CardContent className="p-0">
                   {/* Header */}
-                  <div 
-                    className="p-6 text-white"
-                    style={{ backgroundColor: category.color }}
+                  <div
+                    className={`${styles.categoryHeader} p-6 text-white`}
+                    data-color={category.color}
                   >
                     <div className="flex items-center justify-between mb-4">
                       <FolderOpen className="w-8 h-8" />
@@ -107,9 +109,11 @@ export default function CategoriesPage() {
                           <div key={post.id} className="flex items-start space-x-3">
                             {post.featuredImage && (
                               <div className="flex-shrink-0">
-                                <img
+                                <Image
                                   src={post.featuredImage}
                                   alt={post.title}
+                                  width={48}
+                                  height={48}
                                   className="w-12 h-12 object-cover rounded-lg"
                                 />
                               </div>

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUser } from "@/lib/auth-utils"
 import { createPostSchema, postQuerySchema, generateSlug, calculateReadTime } from "@/lib/validations"
-import { PostStatus } from "@prisma/client"
+import { PostStatus, Prisma } from "@prisma/client"
 
 // GET /api/posts - Get all posts with filtering and pagination
 export async function GET(request: NextRequest) {
@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const query = postQuerySchema.parse(Object.fromEntries(searchParams))
 
-    const where: any = {}
+    const where: Prisma.PostWhereInput = {}
 
     // Apply filters
     if (query.status) {
@@ -46,7 +46,6 @@ export async function GET(request: NextRequest) {
               id: true,
               name: true,
               email: true,
-              image: true,
             },
           },
           category: {
@@ -193,7 +192,6 @@ export async function POST(request: NextRequest) {
             id: true,
             name: true,
             email: true,
-            image: true,
           },
         },
         category: true,

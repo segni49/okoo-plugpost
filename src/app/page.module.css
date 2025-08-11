@@ -1,0 +1,22 @@
+/* Category color indicator with dynamic background color */
+.categoryColorIndicator {
+  background-color: #6b7280; /* fallback color */
+}
+
+/* Dynamic color classes for common category colors */
+.categoryColorIndicator[data-color="#ef4444"] { background-color: #ef4444; }
+.categoryColorIndicator[data-color="#f97316"] { background-color: #f97316; }
+.categoryColorIndicator[data-color="#f59e0b"] { background-color: #f59e0b; }
+.categoryColorIndicator[data-color="#eab308"] { background-color: #eab308; }
+.categoryColorIndicator[data-color="#84cc16"] { background-color: #84cc16; }
+.categoryColorIndicator[data-color="#22c55e"] { background-color: #22c55e; }
+.categoryColorIndicator[data-color="#10b981"] { background-color: #10b981; }
+.categoryColorIndicator[data-color="#06b6d4"] { background-color: #06b6d4; }
+.categoryColorIndicator[data-color="#0ea5e9"] { background-color: #0ea5e9; }
+.categoryColorIndicator[data-color="#3b82f6"] { background-color: #3b82f6; }
+.categoryColorIndicator[data-color="#6366f1"] { background-color: #6366f1; }
+.categoryColorIndicator[data-color="#8b5cf6"] { background-color: #8b5cf6; }
+.categoryColorIndicator[data-color="#a855f7"] { background-color: #a855f7; }
+.categoryColorIndicator[data-color="#d946ef"] { background-color: #d946ef; }
+.categoryColorIndicator[data-color="#ec4899"] { background-color: #ec4899; }
+.categoryColorIndicator[data-color="#f43f5e"] { background-color: #f43f5e; }

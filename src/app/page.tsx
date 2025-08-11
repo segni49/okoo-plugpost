@@ -12,9 +12,9 @@ import {
   TrendingUp
 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Loading, PostCardSkeleton } from "@/components/ui/loading"
+import { PostCardSkeleton } from "@/components/ui/loading"
 import { formatRelativeTime, truncateText } from "@/lib/utils"
+import styles from "./page.module.css"
 
 interface Post {
   id: string
@@ -29,7 +29,7 @@ interface Post {
   author: {
     id: string
     name: string
-    image: string | null
+
   }
   category: {
     id: string
@@ -107,37 +107,11 @@ export default function HomePage() {
 
   const PostCard = ({ post, featured = false }: { post: Post; featured?: boolean }) => (
     <Card className={`overflow-hidden hover:shadow-lg transition-shadow ${featured ? "h-full" : ""}`}>
-      {post.featuredImage && (
-        <div className={`relative ${featured ? "h-48" : "h-40"} overflow-hidden`}>
-          <img
-            src={post.featuredImage}
-            alt={post.title}
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-          />
-          {post.category && (
-            <div className="absolute top-4 left-4">
-              <Badge
-                style={{ backgroundColor: post.category.color }}
-                className="text-white"
-              >
-                {post.category.name}
-              </Badge>
-            </div>
-          )}
-        </div>
-      )}
+
       <CardContent className="p-6">
         <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
           <div className="flex items-center space-x-2">
-            {post.author.image ? (
-              <img
-                src={post.author.image}
-                alt={post.author.name}
-                className="w-6 h-6 rounded-full"
-              />
-            ) : (
-              <div className="w-6 h-6 rounded-full bg-gray-300" />
-            )}
+            <div className="w-6 h-6 rounded-full bg-gray-300" />
             <span>{post.author.name}</span>
           </div>
           <div className="flex items-center space-x-1">
@@ -332,8 +306,8 @@ export default function HomePage() {
                       >
                         <div className="flex items-center space-x-3">
                           <div
-                            className="w-4 h-4 rounded-full"
-                            style={{ backgroundColor: category.color }}
+                            className={`w-4 h-4 rounded-full ${styles.categoryColorIndicator}`}
+                            data-color={category.color}
                           />
                           <span className="font-medium text-gray-900">{category.name}</span>
                         </div>

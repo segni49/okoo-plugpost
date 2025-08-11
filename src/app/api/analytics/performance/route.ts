@@ -9,8 +9,37 @@ interface PerformanceData {
     userAgent?: string
     url?: string
     referrer?: string
-    [key: string]: any
+    [key: string]: string | number | boolean | null | undefined
   }
+}
+
+interface MetricAggregation {
+  count: number
+  sum: number
+  min: number
+  max: number
+  values: Array<{
+    value: number
+    timestamp: Date
+    url: string
+  }>
+}
+
+interface PerformanceStatistic {
+  metric: string
+  count: number
+  average: number
+  min: number
+  max: number
+  p50: number
+  p75: number
+  p90: number
+  p95: number
+  recentValues: Array<{
+    value: number
+    timestamp: Date
+    url: string
+  }>
 }
 
 // POST /api/analytics/performance - Record performance metrics
@@ -67,7 +96,10 @@ export async function GET(request: NextRequest) {
     startDate.setDate(startDate.getDate() - period)
 
     // Build where clause
-    const where: any = {
+    const where: {
+      timestamp: { gte: Date }
+      metric?: string
+    } = {
       timestamp: { gte: startDate },
     }
     
@@ -93,7 +125,7 @@ export async function GET(request: NextRequest) {
           values: [],
         }
       }
-      
+
       const metricData = acc[metric.metric]
       metricData.count++
       metricData.sum += metric.value
@@ -102,18 +134,18 @@ export async function GET(request: NextRequest) {
       metricData.values.push({
         value: metric.value,
         timestamp: metric.timestamp,
-        url: metric.url,
+        url: metric.url || '',
       })
-      
+
       return acc
-    }, {} as Record<string, any>)
+    }, {} as Record<string, MetricAggregation>)
 
     // Calculate statistics
-    const statistics = Object.entries(aggregated).map(([metricName, data]) => {
+    const statistics: PerformanceStatistic[] = Object.entries(aggregated).map(([metricName, data]) => {
       const average = data.sum / data.count
-      
+
       // Calculate percentiles
-      const sortedValues = data.values.map((v: any) => v.value).sort((a: number, b: number) => a - b)
+      const sortedValues = data.values.map(v => v.value).sort((a: number, b: number) => a - b)
       const p50 = sortedValues[Math.floor(sortedValues.length * 0.5)]
       const p75 = sortedValues[Math.floor(sortedValues.length * 0.75)]
       const p90 = sortedValues[Math.floor(sortedValues.length * 0.9)]
@@ -163,7 +195,7 @@ export async function GET(request: NextRequest) {
     }
 
     const performanceScore = Object.entries(coreWebVitals)
-      .filter(([_, data]) => data)
+      .filter(([, data]) => data)
       .reduce((acc, [metric, data]) => {
         const score = calculateScore(metric, data!.average)
         return acc + score

@@ -4,19 +4,19 @@ This guide covers various deployment options for PlugPost, from development to p
 
 ## 📋 Table of Contents
 
-- [Prerequisites](#prerequisites)
-- [Environment Configuration](#environment-configuration)
-- [Deployment Options](#deployment-options)
+- [Prerequisites](#-prerequisites)
+- [Environment Configuration](#️-environment-configuration)
+- [Deployment Options](#-deployment-options)
   - [Vercel (Recommended)](#vercel-recommended)
   - [Docker](#docker)
   - [Manual Deployment](#manual-deployment)
   - [AWS](#aws)
   - [DigitalOcean](#digitalocean)
-- [Database Setup](#database-setup)
-- [Environment Variables](#environment-variables)
-- [Security Considerations](#security-considerations)
-- [Monitoring and Logging](#monitoring-and-logging)
-- [Troubleshooting](#troubleshooting)
+- [Database Setup](#️-database-setup)
+- [Environment Variables](#-environment-variables)
+- [Security Considerations](#-security-considerations)
+- [Monitoring and Logging](#-monitoring-and-logging)
+- [Troubleshooting](#-troubleshooting)
 
 ## 🔧 Prerequisites
 
@@ -29,18 +29,21 @@ This guide covers various deployment options for PlugPost, from development to p
 ## ⚙️ Environment Configuration
 
 ### Development
+
 ```bash
 NODE_ENV=development
 NEXTAUTH_URL=http://localhost:3000
 ```
 
 ### Staging
+
 ```bash
 NODE_ENV=production
 NEXTAUTH_URL=https://staging.yourdomain.com
 ```
 
 ### Production
+
 ```bash
 NODE_ENV=production
 NEXTAUTH_URL=https://yourdomain.com
@@ -53,16 +56,19 @@ NEXTAUTH_URL=https://yourdomain.com
 Vercel provides the easiest deployment experience for Next.js applications.
 
 #### 1. Install Vercel CLI
+
 ```bash
 npm i -g vercel
 ```
 
 #### 2. Login to Vercel
+
 ```bash
 vercel login
 ```
 
 #### 3. Deploy
+
 ```bash
 # Development deployment
 vercel
@@ -72,12 +78,15 @@ vercel --prod
 ```
 
 #### 4. Configure Environment Variables
+
 Set environment variables in the Vercel dashboard:
+
 - Go to your project settings
 - Navigate to "Environment Variables"
 - Add all required variables from `.env.example`
 
 #### 5. Custom Domain
+
 - Add your domain in the Vercel dashboard
 - Configure DNS records as instructed
 
@@ -86,11 +95,13 @@ Set environment variables in the Vercel dashboard:
 Deploy using Docker for containerized environments.
 
 #### 1. Build Docker Image
+
 ```bash
 docker build -t plugpost:latest .
 ```
 
 #### 2. Run Container
+
 ```bash
 docker run -d \
   --name plugpost \
@@ -100,6 +111,7 @@ docker run -d \
 ```
 
 #### 3. Using Docker Compose
+
 ```bash
 # Start all services
 docker-compose up -d
@@ -116,6 +128,7 @@ docker-compose logs -f app
 For VPS or dedicated server deployment.
 
 #### 1. Server Setup
+
 ```bash
 # Update system
 sudo apt update && sudo apt upgrade -y
@@ -132,6 +145,7 @@ sudo apt install nginx -y
 ```
 
 #### 2. Application Setup
+
 ```bash
 # Clone repository
 git clone https://github.com/yourusername/plugpost.git
@@ -150,6 +164,7 @@ pm2 startup
 ```
 
 #### 3. Nginx Configuration
+
 ```nginx
 server {
     listen 80;
@@ -183,9 +198,11 @@ server {
 Deploy to AWS using various services.
 
 #### Option 1: AWS App Runner
+
 1. Create App Runner service
 2. Connect to GitHub repository
 3. Configure build settings:
+
    ```yaml
    version: 1.0
    runtime: nodejs18
@@ -203,12 +220,14 @@ Deploy to AWS using various services.
    ```
 
 #### Option 2: AWS ECS with Fargate
+
 1. Create ECR repository
 2. Build and push Docker image
 3. Create ECS cluster and service
 4. Configure load balancer and auto-scaling
 
 #### Option 3: AWS Elastic Beanstalk
+
 1. Create Elastic Beanstalk application
 2. Upload deployment package
 3. Configure environment variables
@@ -219,6 +238,7 @@ Deploy to AWS using various services.
 Deploy using DigitalOcean App Platform.
 
 #### 1. Create App
+
 ```yaml
 name: plugpost
 services:
@@ -248,12 +268,14 @@ databases:
 ## 🗄️ Database Setup
 
 ### PostgreSQL on Neon (Recommended)
+
 1. Create account at [Neon](https://neon.tech)
 2. Create new project
 3. Copy connection string
 4. Set `DATABASE_URL` environment variable
 
 ### Self-hosted PostgreSQL
+
 ```bash
 # Install PostgreSQL
 sudo apt install postgresql postgresql-contrib
@@ -266,6 +288,7 @@ GRANT ALL PRIVILEGES ON DATABASE plugpost TO plugpost_user;
 ```
 
 ### Database Migration
+
 ```bash
 # Generate Prisma client
 npx prisma generate
@@ -280,6 +303,7 @@ npx prisma db seed
 ## 🔐 Environment Variables
 
 ### Required Variables
+
 ```env
 DATABASE_URL="postgresql://..."
 NEXTAUTH_URL="https://yourdomain.com"
@@ -287,6 +311,7 @@ NEXTAUTH_SECRET="your-secret-key"
 ```
 
 ### Optional Variables
+
 ```env
 # OAuth
 GOOGLE_CLIENT_ID="..."
@@ -303,21 +328,25 @@ SMTP_USER="..."
 ## 🔒 Security Considerations
 
 ### SSL/TLS
+
 - Always use HTTPS in production
 - Configure proper SSL certificates
 - Enable HSTS headers
 
 ### Environment Variables
+
 - Never commit secrets to version control
 - Use different secrets for each environment
 - Rotate secrets regularly
 
 ### Database Security
+
 - Use connection pooling
 - Enable SSL for database connections
 - Regular backups
 
 ### Rate Limiting
+
 - Configure rate limiting in production
 - Monitor for suspicious activity
 - Implement IP blocking for abuse
@@ -325,6 +354,7 @@ SMTP_USER="..."
 ## 📊 Monitoring and Logging
 
 ### Application Monitoring
+
 ```bash
 # PM2 monitoring
 pm2 monit
@@ -337,7 +367,9 @@ pm2 restart plugpost
 ```
 
 ### Health Checks
+
 Create health check endpoint:
+
 ```typescript
 // pages/api/health.ts
 export default function handler(req, res) {
@@ -346,7 +378,9 @@ export default function handler(req, res) {
 ```
 
 ### Error Tracking
+
 Configure Sentry for error tracking:
+
 ```env
 SENTRY_DSN="your-sentry-dsn"
 ```
@@ -356,6 +390,7 @@ SENTRY_DSN="your-sentry-dsn"
 ### Common Issues
 
 #### Build Failures
+
 ```bash
 # Clear cache
 npm run clean
@@ -365,6 +400,7 @@ npm run build
 ```
 
 #### Database Connection Issues
+
 ```bash
 # Test connection
 npx prisma db pull
@@ -374,6 +410,7 @@ npx prisma migrate reset
 ```
 
 #### Memory Issues
+
 ```bash
 # Increase Node.js memory limit
 NODE_OPTIONS="--max-old-space-size=4096" npm run build
@@ -382,12 +419,14 @@ NODE_OPTIONS="--max-old-space-size=4096" npm run build
 ### Performance Optimization
 
 #### Enable Compression
+
 ```nginx
 gzip on;
 gzip_types text/plain text/css application/json application/javascript;
 ```
 
 #### Caching
+
 ```nginx
 location /_next/static/ {
     expires 1y;
@@ -396,6 +435,7 @@ location /_next/static/ {
 ```
 
 #### Database Optimization
+
 - Enable connection pooling
 - Add database indexes
 - Monitor query performance
@@ -403,6 +443,7 @@ location /_next/static/ {
 ## 📝 Deployment Checklist
 
 ### Pre-deployment
+
 - [ ] Run tests (`npm test`)
 - [ ] Check build (`npm run build`)
 - [ ] Update environment variables
@@ -410,6 +451,7 @@ location /_next/static/ {
 - [ ] Review security settings
 
 ### Post-deployment
+
 - [ ] Verify application is running
 - [ ] Test critical functionality
 - [ ] Check logs for errors
@@ -417,6 +459,7 @@ location /_next/static/ {
 - [ ] Update DNS if needed
 
 ### Rollback Plan
+
 - [ ] Keep previous version available
 - [ ] Database backup ready
 - [ ] Rollback procedure documented
@@ -425,9 +468,10 @@ location /_next/static/ {
 ## 🆘 Support
 
 For deployment issues:
-- Check the [troubleshooting section](#troubleshooting)
+
+- Check the [troubleshooting section](#-troubleshooting)
 - Review application logs
-- Contact support at support@plugpost.com
+- Contact support at <support@plugpost.com>
 
 ---
 

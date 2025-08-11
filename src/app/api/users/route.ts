@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUser } from "@/lib/auth-utils"
 import { userQuerySchema } from "@/lib/validations"
+import { Prisma } from "@prisma/client"
 
 // GET /api/users - Get all users (admin only)
 export async function GET(request: NextRequest) {
@@ -24,7 +25,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const query = userQuerySchema.parse(Object.fromEntries(searchParams))
 
-    const where: any = {}
+    const where: Prisma.UserWhereInput = {}
 
     // Apply filters
     if (query.role) {
@@ -47,7 +48,6 @@ export async function GET(request: NextRequest) {
           id: true,
           name: true,
           email: true,
-          image: true,
           role: true,
           status: true,
           createdAt: true,

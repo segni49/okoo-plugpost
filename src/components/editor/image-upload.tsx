@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Upload, X, Image as ImageIcon } from "lucide-react"
+import { Upload, X } from "lucide-react"
 
 interface ImageUploadProps {
   onImageUpload: (url: string) => void
@@ -93,8 +93,11 @@ export function ImageUpload({ onImageUpload, onClose }: ImageUploadProps) {
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">Add Image</h3>
           <button
+            type="button"
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
+            title="Close dialog"
+            aria-label="Close dialog"
           >
             <X size={20} />
           </button>
@@ -124,6 +127,8 @@ export function ImageUpload({ onImageUpload, onClose }: ImageUploadProps) {
                 accept="image/*"
                 onChange={handleFileSelect}
                 className="hidden"
+                aria-label="Upload image file"
+                title="Select an image file to upload"
               />
               {isUploading ? (
                 <div className="flex flex-col items-center">

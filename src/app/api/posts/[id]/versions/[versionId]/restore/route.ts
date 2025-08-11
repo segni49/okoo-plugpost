@@ -82,7 +82,6 @@ export async function POST(
             id: true,
             name: true,
             email: true,
-            image: true,
           },
         },
         category: true,

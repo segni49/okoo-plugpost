@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    let result: any = { success: true, affected: 0 }
+    const result: { success: boolean; affected: number; message?: string } = { success: true, affected: 0 }
 
     switch (action) {
       case "delete":

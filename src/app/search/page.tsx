@@ -1,19 +1,21 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { 
-  Search, 
-  Filter, 
-  FileText, 
-  FolderOpen, 
-  Tag, 
+import Image from "next/image"
+import {
+  Search,
+  Filter,
+  FileText,
+  FolderOpen,
+  Tag,
   User,
   Calendar,
   Eye,
   MessageSquare,
-  Heart
+  Heart,
+  AlertCircle
 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -46,35 +48,46 @@ interface SearchResult {
   viewCount?: number
 }
 
+interface SearchBreakdown {
+  posts: number
+  categories: number
+  tags: number
+  users: number
+}
+
+interface SearchError {
+  message: string
+  code?: string
+}
+
 export default function SearchPage() {
   const searchParams = useSearchParams()
   const initialQuery = searchParams.get("q") || ""
-  
+
   const [query, setQuery] = useState(initialQuery)
   const [results, setResults] = useState<SearchResult[]>([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<SearchError | null>(null)
   const [searchType, setSearchType] = useState<string>("all")
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [breakdown, setBreakdown] = useState<any>({})
+  const [breakdown, setBreakdown] = useState<SearchBreakdown>({
+    posts: 0,
+    categories: 0,
+    tags: 0,
+    users: 0
+  })
 
-  useEffect(() => {
-    if (initialQuery) {
-      performSearch(initialQuery)
+  const performSearch = useCallback(async (searchQuery: string) => {
+    if (!searchQuery.trim()) {
+      setResults([])
+      setError(null)
+      return
     }
-  }, [initialQuery])
-
-  useEffect(() => {
-    if (query) {
-      performSearch(query)
-    }
-  }, [searchType, currentPage])
-
-  const performSearch = async (searchQuery: string) => {
-    if (!searchQuery.trim()) return
 
     try {
       setLoading(true)
+      setError(null)
       const params = new URLSearchParams({
         q: searchQuery,
         type: searchType,
@@ -83,29 +96,67 @@ export default function SearchPage() {
       })
 
       const response = await fetch(`/api/search?${params}`)
-      if (response.ok) {
-        const data = await response.json()
-        setResults(data.results)
-        
-        if (data.pagination) {
-          setTotalPages(data.pagination.totalPages)
-        }
-        
-        if (data.breakdown) {
-          setBreakdown(data.breakdown)
-        }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Search failed with status ${response.status}`)
+      }
+
+      const data = await response.json()
+      setResults(data.results || [])
+
+      if (data.pagination) {
+        setTotalPages(data.pagination.totalPages || 1)
+      }
+
+      if (data.breakdown) {
+        setBreakdown(data.breakdown)
       }
     } catch (error) {
       console.error("Error performing search:", error)
+      setError({
+        message: error instanceof Error ? error.message : "An unexpected error occurred",
+        code: "SEARCH_ERROR"
+      })
+      setResults([])
     } finally {
       setLoading(false)
     }
-  }
+  }, [searchType, currentPage])
+
+  useEffect(() => {
+    if (initialQuery) {
+      performSearch(initialQuery)
+    }
+  }, [initialQuery, performSearch])
+
+  useEffect(() => {
+    if (query) {
+      performSearch(query)
+    }
+  }, [query, searchType, currentPage, performSearch])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!query.trim()) {
+      setError({ message: "Please enter a search term", code: "EMPTY_QUERY" })
+      return
+    }
     setCurrentPage(1)
+    setError(null)
     performSearch(query)
+  }
+
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page)
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
+  const handleTypeChange = (type: string) => {
+    setSearchType(type)
+    setCurrentPage(1)
+    setError(null)
   }
 
   const getResultIcon = (type: string) => {
@@ -209,10 +260,13 @@ export default function SearchPage() {
           
           {result.featuredImage && (
             <div className="flex-shrink-0">
-              <img
+              <Image
                 src={result.featuredImage}
                 alt={result.title || result.name || ""}
+                width={80}
+                height={80}
                 className="w-20 h-20 object-cover rounded-lg"
+                unoptimized
               />
             </div>
           )}
@@ -270,7 +324,7 @@ export default function SearchPage() {
                   <button
                     key={type.value}
                     type="button"
-                    onClick={() => setSearchType(type.value)}
+                    onClick={() => handleTypeChange(type.value)}
                     className={`px-3 py-1 rounded-full text-sm transition-colors ${
                       searchType === type.value
                         ? "bg-blue-600 text-white"
@@ -278,8 +332,8 @@ export default function SearchPage() {
                     }`}
                   >
                     {type.label}
-                    {breakdown[type.value] && (
-                      <span className="ml-1">({breakdown[type.value]})</span>
+                    {breakdown[type.value as keyof SearchBreakdown] && (
+                      <span className="ml-1">({breakdown[type.value as keyof SearchBreakdown]})</span>
                     )}
                   </button>
                 ))}
@@ -288,16 +342,29 @@ export default function SearchPage() {
           </form>
         </div>
 
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center space-x-2">
+              <AlertCircle className="w-5 h-5 text-red-500" />
+              <div>
+                <h3 className="text-sm font-medium text-red-800">Search Error</h3>
+                <p className="text-sm text-red-700">{error.message}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Results */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <Loading size="lg" text="Searching..." />
           </div>
-        ) : query && results.length > 0 ? (
+        ) : error ? null : query && results.length > 0 ? (
           <>
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
-                Search Results for "{query}"
+                Search Results for &ldquo;{query}&rdquo;
               </h2>
               <p className="text-gray-600">
                 Found {results.length} results
@@ -315,7 +382,7 @@ export default function SearchPage() {
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
-                onPageChange={setCurrentPage}
+                onPageChange={handlePageChange}
                 className="justify-center"
               />
             )}
@@ -324,7 +391,7 @@ export default function SearchPage() {
           <div className="text-center py-12">
             <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-medium text-gray-900 mb-2">
-              No results found for "{query}"
+              No results found for &ldquo;{query}&rdquo;
             </h3>
             <p className="text-gray-600 mb-6">
               Try adjusting your search terms or browse our categories.

@@ -1,13 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { 
-  Search, 
-  Filter, 
-  Edit, 
-  Trash2, 
+import {
+  Search,
+  Edit,
+  Trash2,
   MoreHorizontal,
   UserCheck,
   UserX,
@@ -23,7 +22,6 @@ interface User {
   id: string
   name: string
   email: string
-  image: string | null
   role: string
   status: string
   createdAt: string
@@ -48,20 +46,7 @@ export default function UsersManagementPage() {
     user: null,
   })
 
-  useEffect(() => {
-    if (status === "loading") return
-    if (!session) {
-      router.push("/auth/signin")
-      return
-    }
-    if (session.user.role !== "ADMIN") {
-      router.push("/admin")
-      return
-    }
-    fetchUsers()
-  }, [session, status, router, currentPage, roleFilter, statusFilter, searchTerm])
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams({
@@ -83,7 +68,20 @@ export default function UsersManagementPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [currentPage, roleFilter, statusFilter, searchTerm])
+
+  useEffect(() => {
+    if (status === "loading") return
+    if (!session) {
+      router.push("/auth/signin")
+      return
+    }
+    if (session.user.role !== "ADMIN") {
+      router.push("/admin")
+      return
+    }
+    fetchUsers()
+  }, [session, status, router, fetchUsers])
 
   const handleDeleteUser = async (userId: string) => {
     try {
@@ -210,6 +208,7 @@ export default function UsersManagementPage() {
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
+              title="Filter by role"
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="ALL">All Roles</option>
@@ -221,6 +220,7 @@ export default function UsersManagementPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              title="Filter by status"
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="ALL">All Status</option>
@@ -262,17 +262,9 @@ export default function UsersManagementPage() {
                 <tr key={user.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div className="flex items-center">
-                      {user.image ? (
-                        <img
-                          className="h-10 w-10 rounded-full mr-4"
-                          src={user.image}
-                          alt={user.name}
-                        />
-                      ) : (
-                        <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center mr-4">
-                          <User className="h-5 w-5 text-gray-600" />
-                        </div>
-                      )}
+                      <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center mr-4">
+                        <User className="h-5 w-5 text-gray-600" />
+                      </div>
                       <div>
                         <div className="text-sm font-medium text-gray-900">
                           {user.name}
@@ -284,12 +276,12 @@ export default function UsersManagementPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <Badge variant={getRoleColor(user.role) as any}>
+                    <Badge variant={getRoleColor(user.role) as "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "info"}>
                       {user.role}
                     </Badge>
                   </td>
                   <td className="px-6 py-4">
-                    <Badge variant={getStatusColor(user.status) as any}>
+                    <Badge variant={getStatusColor(user.status) as "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "info"}>
                       {user.status}
                     </Badge>
                   </td>
@@ -305,7 +297,7 @@ export default function UsersManagementPage() {
                   <td className="px-6 py-4 text-right text-sm font-medium">
                     <Dropdown
                       trigger={
-                        <button className="text-gray-400 hover:text-gray-600">
+                        <button type="button" title="More actions" className="text-gray-400 hover:text-gray-600">
                           <MoreHorizontal className="w-5 h-5" />
                         </button>
                       }
@@ -354,6 +346,7 @@ export default function UsersManagementPage() {
           <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
             <div className="flex-1 flex justify-between sm:hidden">
               <button
+                type="button"
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
                 className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
@@ -361,6 +354,7 @@ export default function UsersManagementPage() {
                 Previous
               </button>
               <button
+                type="button"
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
                 className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
@@ -378,6 +372,7 @@ export default function UsersManagementPage() {
               <div>
                 <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
                   <button
+                    type="button"
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
                     className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
@@ -385,6 +380,7 @@ export default function UsersManagementPage() {
                     Previous
                   </button>
                   <button
+                    type="button"
                     onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}
                     className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"

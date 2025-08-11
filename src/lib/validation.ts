@@ -1,10 +1,10 @@
 import { z } from "zod"
-import DOMPurify from "isomorphic-dompurify"
+import DOMPurify from "dompurify"
 
 // Common validation schemas
 export const emailSchema = z
   .string()
-  .email("Invalid email address")
+  .email({ message: "Invalid email address" })
   .min(1, "Email is required")
   .max(255, "Email is too long")
 
@@ -28,7 +28,7 @@ export const slugSchema = z
 
 export const urlSchema = z
   .string()
-  .url("Invalid URL")
+  .url({ message: "Invalid URL" })
   .max(2048, "URL is too long")
 
 export const hexColorSchema = z
@@ -203,7 +203,7 @@ export function validateInput<T>(schema: z.ZodSchema<T>) {
       return schema.parse(data)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const messages = error.errors.map(err => `${err.path.join(".")}: ${err.message}`)
+        const messages = error.issues.map((err) => `${err.path.join(".")}: ${err.message}`)
         throw new Error(`Validation failed: ${messages.join(", ")}`)
       }
       throw error

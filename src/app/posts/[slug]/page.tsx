@@ -1,14 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { 
-  Calendar, 
-  Clock, 
-  Eye, 
-  MessageSquare, 
-  Heart, 
+import Image from "next/image"
+import {
+  Clock,
+  Eye,
+  MessageSquare,
+  Heart,
   Share2,
   ArrowLeft,
   User,
@@ -17,7 +17,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Loading } from "@/components/ui/loading"
-import { formatDate, formatRelativeTime, calculateReadingTime } from "@/lib/utils"
+import { formatDate, formatRelativeTime } from "@/lib/utils"
 import { CommentSection } from "@/components/comments/comment-section"
 
 interface Post {
@@ -35,7 +35,7 @@ interface Post {
   author: {
     id: string
     name: string
-    image: string | null
+
     bio: string | null
   }
   category: {
@@ -59,12 +59,17 @@ interface Comment {
   id: string
   content: string
   createdAt: string
+  updatedAt: string
+  deletedAt: string | null
   author: {
     id: string
     name: string
-    image: string | null
   }
   replies?: Comment[]
+  _count: {
+    likes: number
+    replies: number
+  }
 }
 
 export default function PostPage() {
@@ -78,13 +83,7 @@ export default function PostPage() {
   const [isLiked, setIsLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(0)
 
-  useEffect(() => {
-    if (slug) {
-      fetchPost()
-    }
-  }, [slug])
-
-  const fetchPost = async () => {
+  const fetchPost = useCallback(async () => {
     try {
       setLoading(true)
       const [postRes, commentsRes] = await Promise.all([
@@ -123,7 +122,13 @@ export default function PostPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [slug])
+
+  useEffect(() => {
+    if (slug) {
+      fetchPost()
+    }
+  }, [slug, fetchPost])
 
   const handleLike = async () => {
     if (!post) return
@@ -174,7 +179,7 @@ export default function PostPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Post Not Found</h1>
-          <p className="text-gray-600 mb-6">The post you're looking for doesn't exist.</p>
+          <p className="text-gray-600 mb-6">The post you&apos;re looking for doesn&apos;t exist.</p>
           <Link
             href="/posts"
             className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -229,17 +234,9 @@ export default function PostPage() {
           {/* Meta */}
           <div className="flex flex-wrap items-center gap-6 text-gray-500 mb-8">
             <div className="flex items-center space-x-3">
-              {post.author.image ? (
-                <img
-                  src={post.author.image}
-                  alt={post.author.name}
-                  className="w-10 h-10 rounded-full"
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-                  <User className="w-5 h-5 text-gray-600" />
-                </div>
-              )}
+              <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
+                <User className="w-5 h-5 text-gray-600" />
+              </div>
               <div>
                 <p className="font-medium text-gray-900">{post.author.name}</p>
                 <p className="text-sm">{formatDate(post.publishedAt)}</p>
@@ -296,9 +293,11 @@ export default function PostPage() {
             {/* Featured Image */}
             {post.featuredImage && (
               <div className="mb-8">
-                <img
+                <Image
                   src={post.featuredImage}
                   alt={post.title}
+                  width={800}
+                  height={400}
                   className="w-full h-64 md:h-96 object-cover rounded-lg"
                 />
               </div>
@@ -336,17 +335,9 @@ export default function PostPage() {
               <Card className="mb-12">
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4">
-                    {post.author.image ? (
-                      <img
-                        src={post.author.image}
-                        alt={post.author.name}
-                        className="w-16 h-16 rounded-full"
-                      />
-                    ) : (
-                      <div className="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center">
-                        <User className="w-8 h-8 text-gray-600" />
-                      </div>
-                    )}
+                    <div className="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center">
+                      <User className="w-8 h-8 text-gray-600" />
+                    </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">
                         About {post.author.name}
@@ -376,9 +367,11 @@ export default function PostPage() {
                       <div key={relatedPost.id} className="flex space-x-3">
                         {relatedPost.featuredImage && (
                           <div className="flex-shrink-0">
-                            <img
+                            <Image
                               src={relatedPost.featuredImage}
                               alt={relatedPost.title}
+                              width={64}
+                              height={64}
                               className="w-16 h-16 object-cover rounded-lg"
                             />
                           </div>

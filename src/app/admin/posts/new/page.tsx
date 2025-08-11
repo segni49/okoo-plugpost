@@ -86,7 +86,6 @@ export default function NewPostPage() {
       })
 
       if (response.ok) {
-        const post = await response.json()
         router.push(`/admin/posts`)
       } else {
         const error = await response.json()

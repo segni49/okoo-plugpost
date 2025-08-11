@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
-import { 
-  MessageSquare, 
-  Heart, 
-  Reply, 
-  Edit, 
-  Trash2, 
+import {
+  MessageSquare,
+  Heart,
+  Reply,
+  Edit,
+  Trash2,
   MoreHorizontal,
   User,
   Send
@@ -29,7 +29,7 @@ interface Comment {
   author: {
     id: string
     name: string
-    image: string | null
+
   }
   replies?: Comment[]
   _count: {
@@ -59,13 +59,7 @@ export function CommentSection({ postId, initialComments = [] }: CommentSectionP
     commentId: null,
   })
 
-  useEffect(() => {
-    if (initialComments.length === 0) {
-      fetchComments()
-    }
-  }, [postId])
-
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/posts/${postId}/comments`)
@@ -79,7 +73,15 @@ export function CommentSection({ postId, initialComments = [] }: CommentSectionP
     } finally {
       setLoading(false)
     }
-  }
+  }, [postId, toast])
+
+  useEffect(() => {
+    if (initialComments.length === 0) {
+      fetchComments()
+    }
+  }, [fetchComments, initialComments.length])
+
+
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -252,7 +254,7 @@ export function CommentSection({ postId, initialComments = [] }: CommentSectionP
       })
 
       if (response.ok) {
-        const { liked, likeCount } = await response.json()
+        const { likeCount } = await response.json()
         
         // Update like count in the comment
         const updateLikeInList = (commentList: Comment[]): Comment[] => {
@@ -286,17 +288,9 @@ export function CommentSection({ postId, initialComments = [] }: CommentSectionP
           <CardContent className="p-4">
             <div className="flex items-start space-x-3">
               <div className="flex-shrink-0">
-                {comment.author.image ? (
-                  <img
-                    src={comment.author.image}
-                    alt={comment.author.name}
-                    className="w-8 h-8 rounded-full"
-                  />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-                    <User className="w-4 h-4 text-gray-600" />
-                  </div>
-                )}
+                <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                  <User className="w-4 h-4 text-gray-600" />
+                </div>
               </div>
               
               <div className="flex-1 min-w-0">
@@ -315,6 +309,8 @@ export function CommentSection({ postId, initialComments = [] }: CommentSectionP
                     <textarea
                       value={editContent}
                       onChange={(e) => setEditContent(e.target.value)}
+                      placeholder="Edit your comment..."
+                      aria-label="Edit comment"
                       className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       rows={3}
                     />
@@ -345,6 +341,7 @@ export function CommentSection({ postId, initialComments = [] }: CommentSectionP
                 {!isDeleted && editingComment !== comment.id && (
                   <div className="flex items-center space-x-4 text-sm">
                     <button
+                      type="button"
                       onClick={() => handleLikeComment(comment.id)}
                       className="flex items-center space-x-1 text-gray-500 hover:text-red-600 transition-colors"
                     >
@@ -354,6 +351,7 @@ export function CommentSection({ postId, initialComments = [] }: CommentSectionP
                     
                     {!isReply && (
                       <button
+                        type="button"
                         onClick={() => setReplyingTo(comment.id)}
                         className="flex items-center space-x-1 text-gray-500 hover:text-blue-600 transition-colors"
                       >
@@ -365,7 +363,11 @@ export function CommentSection({ postId, initialComments = [] }: CommentSectionP
                     {canEdit && (
                       <Dropdown
                         trigger={
-                          <button className="text-gray-400 hover:text-gray-600">
+                          <button
+                            type="button"
+                            title="Comment options"
+                            className="text-gray-400 hover:text-gray-600"
+                          >
                             <MoreHorizontal className="w-4 h-4" />
                           </button>
                         }

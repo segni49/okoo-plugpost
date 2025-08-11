@@ -4,14 +4,14 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Users, 
-  MessageSquare, 
-  FolderOpen, 
-  Tags, 
-  Settings, 
+import {
+  LayoutDashboard,
+  FileText,
+  Users,
+  MessageSquare,
+  FolderOpen,
+  Tags,
+  Settings,
   BarChart3,
   Menu,
   X,
@@ -123,6 +123,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               type="button"
               className="ml-1 flex h-10 w-10 items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
               onClick={() => setSidebarOpen(false)}
+              title="Close sidebar"
             >
               <X className="h-6 w-6 text-white" />
             </button>
@@ -151,17 +152,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="flex flex-shrink-0 border-t border-gray-200 p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                {session.user.image ? (
-                  <img
-                    className="h-8 w-8 rounded-full"
-                    src={session.user.image}
-                    alt={session.user.name || "User"}
-                  />
-                ) : (
-                  <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
-                    <User className="h-4 w-4 text-gray-600" />
-                  </div>
-                )}
+                <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
+                  <User className="h-4 w-4 text-gray-600" />
+                </div>
               </div>
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-700">{session.user.name}</p>
@@ -198,23 +191,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="flex flex-shrink-0 border-t border-gray-200 p-4">
             <div className="flex w-full items-center">
               <div className="flex-shrink-0">
-                {session.user.image ? (
-                  <img
-                    className="h-8 w-8 rounded-full"
-                    src={session.user.image}
-                    alt={session.user.name || "User"}
-                  />
-                ) : (
-                  <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
-                    <User className="h-4 w-4 text-gray-600" />
-                  </div>
-                )}
+                <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
+                  <User className="h-4 w-4 text-gray-600" />
+                </div>
               </div>
               <div className="ml-3 flex-1">
                 <p className="text-sm font-medium text-gray-700">{session.user.name}</p>
                 <p className="text-xs text-gray-500">{session.user.role}</p>
               </div>
               <button
+                type="button"
                 onClick={() => router.push("/api/auth/signout")}
                 className="ml-2 p-1 text-gray-400 hover:text-gray-600"
                 title="Sign out"
@@ -235,22 +221,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               type="button"
               className="text-gray-500 hover:text-gray-600"
               onClick={() => setSidebarOpen(true)}
+              title="Open sidebar"
             >
               <Menu className="h-6 w-6" />
             </button>
             <h1 className="text-lg font-semibold text-gray-900">Admin Dashboard</h1>
             <div className="flex items-center space-x-2">
-              {session.user.image ? (
-                <img
-                  className="h-8 w-8 rounded-full"
-                  src={session.user.image}
-                  alt={session.user.name || "User"}
-                />
-              ) : (
-                <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
+              <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
                   <User className="h-4 w-4 text-gray-600" />
                 </div>
-              )}
             </div>
           </div>
         </div>

@@ -23,21 +23,22 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined)
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([])
 
+  const removeToast = useCallback((id: string) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id))
+  }, [])
+
   const addToast = useCallback((toast: Omit<Toast, "id">) => {
     const id = Math.random().toString(36).substr(2, 9)
     const newToast = { ...toast, id }
-    
+
     setToasts(prev => [...prev, newToast])
 
     // Auto remove after duration
     const duration = toast.duration || 5000
     setTimeout(() => {
-      removeToast(id)
+      // Inline removal to avoid dependency on removeToast during initialization
+      setToasts(prev => prev.filter(t => t.id !== id))
     }, duration)
-  }, [])
-
-  const removeToast = useCallback((id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id))
   }, [])
 
   return (
@@ -123,7 +124,10 @@ function ToastItem({ toast, onClose }: ToastItemProps) {
           </div>
           <div className="ml-4 flex-shrink-0 flex">
             <button
+              type="button"
               onClick={onClose}
+              aria-label="Close notification"
+              title="Close notification"
               className="inline-flex text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               <X className="h-4 w-4" />

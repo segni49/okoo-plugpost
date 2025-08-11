@@ -42,12 +42,16 @@ export class RateLimiter {
     const forwarded = request.headers.get("x-forwarded-for")
     const realIP = request.headers.get("x-real-ip")
     const remoteAddr = request.headers.get("remote-addr")
-    
+
     if (forwarded) {
       return forwarded.split(",")[0].trim()
     }
-    
+
     return realIP || remoteAddr || "unknown"
+  }
+
+  protected getConfig(): RateLimitConfig {
+    return this.config
   }
 
   async checkLimit(request: NextRequest): Promise<{
@@ -58,10 +62,9 @@ export class RateLimiter {
   }> {
     const key = this.config.keyGenerator!(request)
     const now = Date.now()
-    const windowStart = now - this.config.windowMs
-    
+
     let entry = rateLimitStore.get(key)
-    
+
     // Reset if window has passed
     if (!entry || entry.resetTime < now) {
       entry = {
@@ -69,14 +72,14 @@ export class RateLimiter {
         resetTime: now + this.config.windowMs,
       }
     }
-    
+
     const allowed = entry.count < this.config.maxRequests
-    
+
     if (allowed) {
       entry.count++
       rateLimitStore.set(key, entry)
     }
-    
+
     return {
       allowed,
       limit: this.config.maxRequests,
@@ -151,11 +154,11 @@ export const rateLimiters = {
 }
 
 // Utility function to apply rate limiting to API routes
-export function withRateLimit(
+export function withRateLimit<Args extends unknown[]>(
   rateLimiter: RateLimiter,
-  handler: (request: NextRequest, ...args: any[]) => Promise<Response>
+  handler: (request: NextRequest, ...args: Args) => Promise<Response>
 ) {
-  return async (request: NextRequest, ...args: any[]) => {
+  return async (request: NextRequest, ...args: Args) => {
     const rateLimitResponse = await rateLimiter.middleware(request)
     
     if (rateLimitResponse) {
@@ -169,7 +172,7 @@ export function withRateLimit(
 // Advanced rate limiting with different limits for authenticated users
 export class AdaptiveRateLimiter extends RateLimiter {
   private authenticatedConfig: RateLimitConfig
-  
+
   constructor(
     anonymousConfig: RateLimitConfig,
     authenticatedConfig: RateLimitConfig
@@ -177,33 +180,33 @@ export class AdaptiveRateLimiter extends RateLimiter {
     super(anonymousConfig)
     this.authenticatedConfig = authenticatedConfig
   }
-  
+
   async checkLimit(request: NextRequest, isAuthenticated = false): Promise<{
     allowed: boolean
     limit: number
     remaining: number
     resetTime: number
   }> {
-    const config = isAuthenticated ? this.authenticatedConfig : this.config
+    const config = isAuthenticated ? this.authenticatedConfig : this.getConfig()
     const key = `${isAuthenticated ? "auth" : "anon"}:${config.keyGenerator!(request)}`
     const now = Date.now()
-    
+
     let entry = rateLimitStore.get(key)
-    
+
     if (!entry || entry.resetTime < now) {
       entry = {
         count: 0,
         resetTime: now + config.windowMs,
       }
     }
-    
+
     const allowed = entry.count < config.maxRequests
-    
+
     if (allowed) {
       entry.count++
       rateLimitStore.set(key, entry)
     }
-    
+
     return {
       allowed,
       limit: config.maxRequests,

@@ -42,7 +42,6 @@ export async function POST(
     })
 
     let liked: boolean
-    let likeCount: number
 
     if (existingLike) {
       // Unlike the comment
@@ -67,7 +66,7 @@ export async function POST(
     }
 
     // Get updated like count
-    likeCount = await prisma.commentLike.count({
+    const likeCount = await prisma.commentLike.count({
       where: { commentId },
     })
 

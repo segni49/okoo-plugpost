@@ -2,18 +2,54 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUser } from "@/lib/auth-utils"
 import { createCommentSchema, paginationSchema } from "@/lib/validations"
+import { z } from "zod"
+import { Prisma } from "@prisma/client"
+
+const commentQuerySchema = paginationSchema.extend({
+  postId: z.string().optional(),
+  authorId: z.string().optional(),
+  search: z.string().optional(),
+  sortBy: z.enum(["createdAt", "updatedAt", "content"]).default("createdAt"),
+  sortOrder: z.enum(["asc", "desc"]).default("desc"),
+  admin: z.string().optional(), // Flag for admin view
+})
 
 // GET /api/comments - Get comments with filtering
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const { page, limit } = paginationSchema.parse(Object.fromEntries(searchParams))
-    const postId = searchParams.get("postId")
+    const query = commentQuerySchema.parse({
+      page: searchParams.get("page"),
+      limit: searchParams.get("limit"),
+      postId: searchParams.get("postId"),
+      authorId: searchParams.get("authorId"),
+      search: searchParams.get("search"),
+      sortBy: searchParams.get("sortBy"),
+      sortOrder: searchParams.get("sortOrder"),
+      admin: searchParams.get("admin"),
+    })
 
-    const where: any = {}
-    if (postId) {
-      where.postId = postId
-      where.parentId = null // Only top-level comments for post
+    const user = await getCurrentUser()
+    const isAdmin = query.admin === "true" && user && (user.role === "ADMIN" || user.role === "EDITOR")
+
+    const where: Prisma.CommentWhereInput = {}
+
+    if (query.postId) {
+      where.postId = query.postId
+      if (!isAdmin) {
+        where.parentId = null // Only top-level comments for post view
+      }
+    }
+
+    if (query.authorId) {
+      where.authorId = query.authorId
+    }
+
+    if (query.search) {
+      where.content = {
+        contains: query.search,
+        mode: "insensitive",
+      }
     }
 
     const [comments, total] = await Promise.all([
@@ -24,7 +60,7 @@ export async function GET(request: NextRequest) {
             select: {
               id: true,
               name: true,
-              image: true,
+              email: isAdmin,
             },
           },
           post: {
@@ -34,44 +70,60 @@ export async function GET(request: NextRequest) {
               slug: true,
             },
           },
-          replies: {
+          replies: !isAdmin ? {
             include: {
               author: {
                 select: {
                   id: true,
                   name: true,
-                  image: true,
+                },
+              },
+              _count: {
+                select: {
+                  likes: true,
                 },
               },
             },
             orderBy: {
               createdAt: "asc",
             },
+          } : undefined,
+          _count: {
+            select: {
+              likes: true,
+              replies: true,
+            },
           },
         },
         orderBy: {
-          createdAt: "desc",
+          [query.sortBy]: query.sortOrder,
         },
-        skip: (page - 1) * limit,
-        take: limit,
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
       }),
       prisma.comment.count({ where }),
     ])
 
-    const totalPages = Math.ceil(total / limit)
+    const totalPages = Math.ceil(total / query.limit)
 
     return NextResponse.json({
       comments,
       pagination: {
-        page,
-        limit,
-        total,
+        currentPage: query.page,
         totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1,
+        totalItems: total,
+        hasNext: query.page < totalPages,
+        hasPrev: query.page > 1,
       },
     })
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Invalid query parameters", details: error.issues },
+        { status: 400 }
+      )
+    }
+
     console.error("Error fetching comments:", error)
     return NextResponse.json(
       { error: "Failed to fetch comments" },
@@ -139,7 +191,6 @@ export async function POST(request: NextRequest) {
           select: {
             id: true,
             name: true,
-            image: true,
           },
         },
         post: {

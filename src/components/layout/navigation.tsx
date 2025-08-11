@@ -34,7 +34,7 @@ export function Navigation() {
       label: "Profile",
       value: "profile",
       icon: <User className="w-4 h-4" />,
-      onClick: () => {},
+      onClick: () => window.location.href = "/admin/profile",
     },
     ...(session.user.role === "ADMIN" || session.user.role === "EDITOR" ? [
       {
@@ -44,7 +44,7 @@ export function Navigation() {
         onClick: () => window.location.href = "/admin",
       },
     ] : []),
-    ...(session.user.role !== "USER" ? [
+    ...(session.user.role !== "SUBSCRIBER" ? [
       {
         label: "Write Post",
         value: "write",
@@ -56,7 +56,7 @@ export function Navigation() {
       label: "Settings",
       value: "settings",
       icon: <Settings className="w-4 h-4" />,
-      onClick: () => {},
+      onClick: () => window.location.href = "/admin/settings",
     },
     {
       label: "Sign Out",
@@ -125,17 +125,9 @@ export function Navigation() {
               <Dropdown
                 trigger={
                   <button type="button" className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 transition-colors">
-                    {session.user.image ? (
-                      <img
-                        className="h-8 w-8 rounded-full"
-                        src={session.user.image}
-                        alt={session.user.name || "User"}
-                      />
-                    ) : (
-                      <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
-                        <User className="h-4 w-4 text-gray-600" />
-                      </div>
-                    )}
+                    <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
+                      <User className="h-4 w-4 text-gray-600" />
+                    </div>
                     <span className="text-sm font-medium text-gray-700">
                       {session.user.name}
                     </span>
@@ -211,17 +203,9 @@ export function Navigation() {
             {session ? (
               <div className="px-4 space-y-1">
                 <div className="flex items-center px-4 py-2">
-                  {session.user.image ? (
-                    <img
-                      className="h-10 w-10 rounded-full"
-                      src={session.user.image}
-                      alt={session.user.name || "User"}
-                    />
-                  ) : (
-                    <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                      <User className="h-5 w-5 text-gray-600" />
-                    </div>
-                  )}
+                  <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                    <User className="h-5 w-5 text-gray-600" />
+                  </div>
                   <div className="ml-3">
                     <div className="text-base font-medium text-gray-800">
                       {session.user.name}

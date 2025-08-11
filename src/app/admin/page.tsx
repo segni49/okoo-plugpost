@@ -3,13 +3,11 @@
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
-import { 
-  FileText, 
-  Users, 
-  MessageSquare, 
-  Eye, 
-  TrendingUp, 
-  Calendar,
+import {
+  FileText,
+  Users,
+  MessageSquare,
+  Eye,
   Plus,
   ArrowUpRight,
   Clock
@@ -37,7 +35,6 @@ interface RecentPost {
   viewCount: number
   author: {
     name: string
-    image: string | null
   }
 }
 
@@ -47,7 +44,6 @@ interface RecentComment {
   createdAt: string
   author: {
     name: string
-    image: string | null
   }
   post: {
     title: string
@@ -96,7 +92,7 @@ export default function AdminDashboard() {
     }
   }
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): "success" | "secondary" | "info" => {
     switch (status) {
       case "PUBLISHED":
         return "success"
@@ -266,17 +262,9 @@ export default function AdminDashboard() {
               {recentPosts.map((post) => (
                 <div key={post.id} className="flex items-center space-x-4">
                   <div className="flex-shrink-0">
-                    {post.author.image ? (
-                      <img
-                        className="h-8 w-8 rounded-full"
-                        src={post.author.image}
-                        alt={post.author.name}
-                      />
-                    ) : (
-                      <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
-                        <Users className="h-4 w-4 text-gray-600" />
-                      </div>
-                    )}
+                    <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
+                      <Users className="h-4 w-4 text-gray-600" />
+                    </div>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">
@@ -293,7 +281,7 @@ export default function AdminDashboard() {
                       </span>
                     </div>
                   </div>
-                  <Badge variant={getStatusColor(post.status) as any}>
+                  <Badge variant={getStatusColor(post.status)}>
                     {post.status}
                   </Badge>
                 </div>
@@ -319,17 +307,9 @@ export default function AdminDashboard() {
                 <div key={comment.id} className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <div className="flex-shrink-0">
-                      {comment.author.image ? (
-                        <img
-                          className="h-6 w-6 rounded-full"
-                          src={comment.author.image}
-                          alt={comment.author.name}
-                        />
-                      ) : (
-                        <div className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center">
-                          <Users className="h-3 w-3 text-gray-600" />
-                        </div>
-                      )}
+                      <div className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center">
+                        <Users className="h-3 w-3 text-gray-600" />
+                      </div>
                     </div>
                     <span className="text-sm font-medium text-gray-900">
                       {comment.author.name}

@@ -55,7 +55,6 @@ export async function GET(
             select: {
               id: true,
               name: true,
-              image: true,
             },
           },
           replies: {
@@ -64,7 +63,6 @@ export async function GET(
                 select: {
                   id: true,
                   name: true,
-                  image: true,
                 },
               },
               _count: {
@@ -185,7 +183,6 @@ export async function POST(
           select: {
             id: true,
             name: true,
-            image: true,
           },
         },
         _count: {
@@ -201,7 +198,7 @@ export async function POST(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid input", details: error.errors },
+        { error: "Invalid input", details: error.issues },
         { status: 400 }
       )
     }

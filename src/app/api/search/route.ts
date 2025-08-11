@@ -1,6 +1,72 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
+// Type definitions for search results
+type PostResult = {
+  id: string
+  title: string
+  content: string
+  excerpt: string | null
+  seoTitle: string | null
+  seoDescription: string | null
+  slug: string
+  publishedAt: Date | null
+  viewCount: number
+  author: {
+    id: string
+    name: string | null
+
+  }
+  category: {
+    id: string
+    name: string
+    slug: string
+    color: string | null
+  } | null
+  tags: {
+    id: string
+    name: string
+    slug: string
+  }[]
+  _count: {
+    comments: number
+    likes: number
+  }
+  type: "post"
+}
+
+type CategoryResult = {
+  id: string
+  name: string
+  description: string | null
+  slug: string
+  color: string | null
+  _count: {
+    posts: number
+  }
+  type: "category"
+}
+
+type TagResult = {
+  id: string
+  name: string
+  slug: string
+  _count: {
+    posts: number
+  }
+  type: "tag"
+}
+
+type UserResult = {
+  id: string
+  name: string | null
+  bio: string | null
+  _count: {
+    posts: number
+  }
+  type: "user"
+}
+
 // GET /api/search - Global search across posts, categories, tags, and users
 export async function GET(request: NextRequest) {
   try {
@@ -26,11 +92,11 @@ export async function GET(request: NextRequest) {
     const searchTerm = query.trim()
     const skip = (page - 1) * limit
 
-    let results: any = {
-      posts: [],
-      categories: [],
-      tags: [],
-      users: [],
+    const results = {
+      posts: [] as PostResult[],
+      categories: [] as CategoryResult[],
+      tags: [] as TagResult[],
+      users: [] as UserResult[],
     }
 
     // Search posts
@@ -52,7 +118,6 @@ export async function GET(request: NextRequest) {
               select: {
                 id: true,
                 name: true,
-                image: true,
               },
             },
             category: {
@@ -184,7 +249,6 @@ export async function GET(request: NextRequest) {
         select: {
           id: true,
           name: true,
-          image: true,
           bio: true,
           _count: {
             select: {
@@ -223,7 +287,7 @@ export async function GET(request: NextRequest) {
     }
 
     // For specific types, return with pagination
-    const typeResults = results[type] || []
+    const typeResults = results[type as keyof typeof results] || []
     const totalCount = typeResults.length // This is simplified; in production, you'd do a separate count query
 
     return NextResponse.json({

@@ -100,7 +100,7 @@ export class PostScheduler {
     }
   }
 
-  private async onPostPublished(post: any): Promise<void> {
+  private async onPostPublished(post: { id: string; title: string; authorId: string }): Promise<void> {
     try {
       // Create notification for the author
       await prisma.notification.create({
@@ -142,7 +142,12 @@ export class PostScheduler {
   }
 
   // Get next scheduled post
-  async getNextScheduledPost(): Promise<any | null> {
+  async getNextScheduledPost(): Promise<{
+    id: string
+    scheduledAt: Date | null
+    status: PostStatus
+    author: { id: string; name: string | null; email: string | null }
+  } | null> {
     return await prisma.post.findFirst({
       where: {
         status: PostStatus.SCHEDULED,

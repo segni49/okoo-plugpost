@@ -13,14 +13,12 @@ import {
 } from "lucide-react"
 
 interface PostStatusManagerProps {
-  postId: string
   currentStatus: PostStatus
   scheduledAt?: string | null
   onStatusChange: (status: PostStatus, scheduledAt?: string) => Promise<void>
 }
 
 export function PostStatusManager({
-  postId,
   currentStatus,
   scheduledAt,
   onStatusChange,
@@ -143,6 +141,7 @@ export function PostStatusManager({
           return (
             <div key={option.value}>
               <button
+                type="button"
                 onClick={() => handleStatusChange(option.value)}
                 disabled={isLoading || isActive}
                 className={`w-full text-left p-3 rounded-lg border transition-colors ${
@@ -191,6 +190,7 @@ export function PostStatusManager({
                   onChange={(e) => setScheduleDate(e.target.value)}
                   min={new Date().toISOString().split('T')[0]}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  aria-label="Schedule Date"
                 />
               </div>
               
@@ -203,12 +203,14 @@ export function PostStatusManager({
                   value={scheduleTime}
                   onChange={(e) => setScheduleTime(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  aria-label="Schedule Time"
                 />
               </div>
             </div>
 
             <div className="flex justify-end space-x-3 mt-6">
               <button
+                type="button"
                 onClick={() => {
                   setShowScheduler(false)
                   setScheduleDate("")
@@ -219,6 +221,7 @@ export function PostStatusManager({
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleSchedule}
                 disabled={isLoading || !scheduleDate || !scheduleTime}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
@@ -236,6 +239,7 @@ export function PostStatusManager({
         <div className="flex space-x-2">
           {currentStatus !== PostStatus.PUBLISHED && (
             <button
+              type="button"
               onClick={() => handleStatusChange(PostStatus.PUBLISHED)}
               disabled={isLoading}
               className="flex items-center px-3 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
@@ -247,6 +251,7 @@ export function PostStatusManager({
           
           {currentStatus === PostStatus.PUBLISHED && (
             <button
+              type="button"
               onClick={() => handleStatusChange(PostStatus.DRAFT)}
               disabled={isLoading}
               className="flex items-center px-3 py-2 text-sm bg-gray-600 text-white rounded-md hover:bg-gray-700 disabled:opacity-50"
@@ -257,6 +262,7 @@ export function PostStatusManager({
           )}
           
           <button
+            type="button"
             onClick={() => setShowScheduler(true)}
             disabled={isLoading}
             className="flex items-center px-3 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"

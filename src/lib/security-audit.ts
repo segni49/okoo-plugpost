@@ -5,7 +5,7 @@ interface SecurityEvent {
   userId?: string
   ip: string
   userAgent: string
-  details: Record<string, any>
+  details: Record<string, unknown>
   timestamp: Date
 }
 
@@ -71,7 +71,7 @@ export class SecurityAuditor {
     }, {} as Record<string, number>)
     
     const suspiciousIPs = Object.entries(ipCounts)
-      .filter(([_, count]) => count > 5)
+      .filter(([, count]) => count > 5)
       .map(([ip]) => ip)
     
     // Top threats
@@ -299,7 +299,7 @@ export function logLoginAttempt(userId: string, ip: string, userAgent: string, s
   })
 }
 
-export function logSuspiciousActivity(ip: string, userAgent: string, details: Record<string, any>) {
+export function logSuspiciousActivity(ip: string, userAgent: string, details: Record<string, unknown>) {
   SecurityAuditor.logEvent({
     type: "suspicious_activity",
     ip,
@@ -327,5 +327,4 @@ export function logUnauthorizedAccess(userId: string | undefined, ip: string, us
   })
 }
 
-// Export the SecurityAuditor class
-export { SecurityAuditor }
+

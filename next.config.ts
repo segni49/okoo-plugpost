@@ -1,19 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ['@prisma/client', 'bcryptjs'],
-  },
+  serverExternalPackages: ['@prisma/client', 'bcryptjs'],
   images: {
-    domains: ['res.cloudinary.com', 'lh3.googleusercontent.com', 'avatars.githubusercontent.com'],
+    domains: ['res.cloudinary.com'],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
   },
   // Enable standalone output for Docker
   output: 'standalone',
 
-  // Optimize bundle
-  swcMinify: true,
+  // Optimize bundle (Next 15 uses SWC by default; swcMinify is always on)
 
   // Compress responses
   compress: true,

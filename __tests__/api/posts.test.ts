@@ -24,7 +24,7 @@ describe('/api/posts', () => {
           content: 'Test content',
           status: 'PUBLISHED',
           publishedAt: new Date(),
-          author: { id: '1', name: 'Test Author', image: null },
+          author: { id: '1', name: 'Test Author' },
           category: { id: '1', name: 'Test Category', slug: 'test-category', color: '#000000' },
           tags: [],
           _count: { comments: 0, likes: 0 },
@@ -59,7 +59,7 @@ describe('/api/posts', () => {
           content: 'Test content',
           status: 'PUBLISHED',
           publishedAt: new Date(),
-          author: { id: '1', name: 'Test Author', image: null },
+          author: { id: '1', name: 'Test Author' },
           category: { id: '1', name: 'Test Category', slug: 'test-category', color: '#000000' },
           tags: [],
           _count: { comments: 0, likes: 0 },
@@ -90,7 +90,7 @@ describe('/api/posts', () => {
     })
 
     it('should search posts by title and content', async () => {
-      const mockPosts = []
+      const mockPosts: any[] = []
       ;(prisma.post.findMany as jest.Mock).mockResolvedValue(mockPosts)
       ;(prisma.post.count as jest.Mock).mockResolvedValue(0)
 

@@ -1,0 +1,4 @@
+/* Category icon with dynamic background color */
+.categoryIcon {
+  background-color: var(--category-color, #6b7280) !important;
+}

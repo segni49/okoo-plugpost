@@ -18,7 +18,7 @@ export function handleApiError(error: unknown): NextResponse {
 
   // Handle Zod validation errors
   if (error instanceof ZodError) {
-    const errors = error.errors.map(err => ({
+    const errors = error.issues.map(err => ({
       field: err.path.join("."),
       message: err.message,
     }))
@@ -81,7 +81,7 @@ export function handleApiError(error: unknown): NextResponse {
   )
 }
 
-export function createSuccessResponse(data: any, status: number = 200): NextResponse {
+export function createSuccessResponse<T = unknown>(data: T, status: number = 200): NextResponse {
   return NextResponse.json(data, { status })
 }
 

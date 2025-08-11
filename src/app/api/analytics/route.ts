@@ -2,6 +2,76 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUser } from "@/lib/auth-utils"
 
+// Types for analytics response
+interface AnalyticsOverview {
+  totalPosts: number
+  totalUsers: number
+  totalComments: number
+  totalViews: number
+  publishedPosts: number
+  recentPosts: number
+  recentUsers: number
+  recentComments: number
+}
+
+interface TopPost {
+  id: string
+  title: string
+  slug: string
+  viewCount: number
+  author: {
+    name: string | null
+  }
+  _count: {
+    comments: number
+    likes: number
+  }
+}
+
+interface DailyView {
+  date: Date
+  views: number
+  uniqueViews: number
+}
+
+interface CategoryStat {
+  id: string
+  name: string
+  slug: string
+  color: string | null
+  totalPosts: number
+  recentPosts: number
+  totalViews: number
+  totalComments: number
+  totalLikes: number
+}
+
+interface TopAuthor {
+  id: string
+  name: string | null
+  totalPosts: number
+  recentPosts: number
+  totalViews: number
+  totalComments: number
+  totalLikes: number
+}
+
+interface PostWithCounts {
+  viewCount: number
+  _count: {
+    comments: number
+    likes: number
+  }
+}
+
+interface AnalyticsResponse {
+  overview?: AnalyticsOverview
+  topPosts?: TopPost[]
+  dailyViews?: DailyView[]
+  categories?: CategoryStat[]
+  topAuthors?: TopAuthor[]
+}
+
 // GET /api/analytics - Get analytics data
 export async function GET(request: NextRequest) {
   try {
@@ -21,7 +91,7 @@ export async function GET(request: NextRequest) {
     const startDate = new Date()
     startDate.setDate(startDate.getDate() - periodDays)
 
-    let analytics: any = {}
+    const analytics: AnalyticsResponse = {}
 
     if (type === "overview" || type === "all") {
       // Overview statistics
@@ -82,7 +152,7 @@ export async function GET(request: NextRequest) {
         },
         include: {
           author: {
-            select: { name: true, image: true },
+            select: { name: true },
           },
           _count: {
             select: {
@@ -99,23 +169,23 @@ export async function GET(request: NextRequest) {
     }
 
     if (type === "traffic" || type === "all") {
-      // Daily traffic data
+      // Daily traffic data - using createdAt since PostAnalytics doesn't have a date field
       const dailyViews = await prisma.postAnalytics.groupBy({
-        by: ["date"],
+        by: ["createdAt"],
         where: {
-          date: { gte: startDate },
+          createdAt: { gte: startDate },
         },
         _sum: {
           views: true,
           uniqueViews: true,
         },
         orderBy: {
-          date: "asc",
+          createdAt: "asc",
         },
       })
 
       analytics.dailyViews = dailyViews.map(day => ({
-        date: day.date,
+        date: day.createdAt,
         views: day._sum.views || 0,
         uniqueViews: day._sum.uniqueViews || 0,
       }))
@@ -160,10 +230,10 @@ export async function GET(request: NextRequest) {
     }
 
     if (type === "users" || type === "all") {
-      // Top authors
+      // Top authors - using valid UserRole values
       const topAuthors = await prisma.user.findMany({
         where: {
-          role: { in: ["ADMIN", "EDITOR", "AUTHOR"] },
+          role: { in: ["ADMIN", "EDITOR", "CONTRIBUTOR"] },
         },
         include: {
           _count: {
@@ -196,15 +266,14 @@ export async function GET(request: NextRequest) {
         take: 10,
       })
 
-      analytics.topAuthors = topAuthors.map(author => ({
+      analytics.topAuthors = topAuthors.map((author) => ({
         id: author.id,
         name: author.name,
-        image: author.image,
-        totalPosts: author._count.posts,
-        recentPosts: author.posts.length,
-        totalViews: author.posts.reduce((sum, post) => sum + post.viewCount, 0),
-        totalComments: author.posts.reduce((sum, post) => sum + post._count.comments, 0),
-        totalLikes: author.posts.reduce((sum, post) => sum + post._count.likes, 0),
+        totalPosts: author._count?.posts || 0,
+        recentPosts: author.posts?.length || 0,
+        totalViews: author.posts?.reduce((sum: number, post: PostWithCounts) => sum + post.viewCount, 0) || 0,
+        totalComments: author.posts?.reduce((sum: number, post: PostWithCounts) => sum + post._count.comments, 0) || 0,
+        totalLikes: author.posts?.reduce((sum: number, post: PostWithCounts) => sum + post._count.likes, 0) || 0,
       }))
     }
 

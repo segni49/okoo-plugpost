@@ -1,19 +1,19 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { 
-  Search, 
-  Trash2, 
-  Eye,
+import {
+  Search,
+  Trash2,
   MessageSquare,
   User,
   ExternalLink
 } from "lucide-react"
 import { Loading } from "@/components/ui/loading"
 import { ConfirmModal } from "@/components/ui/modal"
+import Image from "next/image"
 
 interface Comment {
   id: string
@@ -46,6 +46,31 @@ export default function CommentsManagementPage() {
     comment: null,
   })
 
+  const fetchComments = useCallback(async () => {
+    try {
+      setLoading(true)
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: "10",
+        admin: "true", // Flag for admin view
+        ...(searchTerm && { search: searchTerm }),
+      })
+
+      const response = await fetch(`/api/comments?${params}`)
+      if (response.ok) {
+        const data = await response.json()
+        setComments(data.comments)
+        setTotalPages(data.pagination.totalPages)
+      } else {
+        console.error("Failed to fetch comments:", response.statusText)
+      }
+    } catch (error) {
+      console.error("Error fetching comments:", error)
+    } finally {
+      setLoading(false)
+    }
+  }, [currentPage, searchTerm])
+
   useEffect(() => {
     if (status === "loading") return
     if (!session) {
@@ -57,29 +82,7 @@ export default function CommentsManagementPage() {
       return
     }
     fetchComments()
-  }, [session, status, router, currentPage, searchTerm])
-
-  const fetchComments = async () => {
-    try {
-      setLoading(true)
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: "10",
-        ...(searchTerm && { search: searchTerm }),
-      })
-
-      const response = await fetch(`/api/comments?${params}`)
-      if (response.ok) {
-        const data = await response.json()
-        setComments(data.comments)
-        setTotalPages(data.pagination.totalPages)
-      }
-    } catch (error) {
-      console.error("Error fetching comments:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  }, [session, status, router, fetchComments])
 
   const handleDeleteComment = async (commentId: string) => {
     try {
@@ -163,12 +166,14 @@ export default function CommentsManagementPage() {
             </span>
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={handleBulkDelete}
                 className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
               >
                 Delete Selected
               </button>
               <button
+                type="button"
                 onClick={() => setSelectedComments([])}
                 className="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700"
               >
@@ -197,21 +202,14 @@ export default function CommentsManagementPage() {
                       }
                     }}
                     className="rounded border-gray-300 mt-1"
+                    aria-label={`Select comment by ${comment.author.name}`}
                   />
                 </div>
                 
                 <div className="flex-shrink-0">
-                  {comment.author.image ? (
-                    <img
-                      className="h-10 w-10 rounded-full"
-                      src={comment.author.image}
-                      alt={comment.author.name}
-                    />
-                  ) : (
-                    <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                      <User className="h-5 w-5 text-gray-600" />
-                    </div>
-                  )}
+                  <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                    <User className="h-5 w-5 text-gray-600" />
+                  </div>
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -234,6 +232,7 @@ export default function CommentsManagementPage() {
                         View Post
                       </Link>
                       <button
+                        type="button"
                         onClick={() => setDeleteModal({ isOpen: true, comment })}
                         className="text-red-600 hover:text-red-800"
                         title="Delete Comment"
@@ -274,7 +273,7 @@ export default function CommentsManagementPage() {
                         <div key={reply.id} className="flex items-start space-x-3">
                           <div className="flex-shrink-0">
                             {reply.author.image ? (
-                              <img
+                              <Image
                                 className="h-6 w-6 rounded-full"
                                 src={reply.author.image}
                                 alt={reply.author.name}
@@ -299,6 +298,7 @@ export default function CommentsManagementPage() {
                             </p>
                           </div>
                           <button
+                            type="button"
                             onClick={() => setDeleteModal({ isOpen: true, comment: reply })}
                             className="text-red-600 hover:text-red-800"
                             title="Delete Reply"
@@ -320,6 +320,7 @@ export default function CommentsManagementPage() {
           <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
             <div className="flex-1 flex justify-between sm:hidden">
               <button
+                type="button"
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
                 className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
@@ -327,6 +328,7 @@ export default function CommentsManagementPage() {
                 Previous
               </button>
               <button
+                type="button"
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
                 className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
@@ -344,6 +346,7 @@ export default function CommentsManagementPage() {
               <div>
                 <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
                   <button
+                    type="button"
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
                     className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
@@ -351,6 +354,7 @@ export default function CommentsManagementPage() {
                     Previous
                   </button>
                   <button
+                    type="button"
                     onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}
                     className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"

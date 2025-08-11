@@ -4,19 +4,19 @@ import { PostStatus, UserRole, UserStatus } from "@prisma/client"
 // User validation schemas
 export const createUserSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
-  email: z.string().email("Invalid email address"),
+  email: z.string().email({ message: "Invalid email address" }),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  role: z.nativeEnum(UserRole).optional(),
+  role: z.enum([UserRole.ADMIN, UserRole.EDITOR, UserRole.CONTRIBUTOR, UserRole.SUBSCRIBER]).optional(),
 })
 
 export const updateUserSchema = z.object({
   name: z.string().min(1).max(100).optional(),
-  email: z.string().email().optional(),
+  email: z.string().email({ message: "Invalid email address" }).optional(),
   bio: z.string().max(500).optional(),
-  website: z.string().url().optional(),
+  website: z.string().url({ message: "Invalid URL" }).optional(),
   location: z.string().max(100).optional(),
-  role: z.nativeEnum(UserRole).optional(),
-  status: z.nativeEnum(UserStatus).optional(),
+  role: z.enum([UserRole.ADMIN, UserRole.EDITOR, UserRole.CONTRIBUTOR, UserRole.SUBSCRIBER]).optional(),
+  status: z.enum([UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.SUSPENDED]).optional(),
 })
 
 // Post validation schemas
@@ -64,6 +64,12 @@ export const createCommentSchema = z.object({
 
 export const updateCommentSchema = z.object({
   content: z.string().min(1).max(1000),
+})
+
+// Password change schema
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(6).optional(),
+  newPassword: z.string().min(8, "Password must be at least 8 characters"),
 })
 
 // Query parameter schemas

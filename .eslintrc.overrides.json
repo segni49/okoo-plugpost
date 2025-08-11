@@ -1,0 +1,10 @@
+{
+  "overrides": [
+    {
+      "files": ["src/types/recharts.d.ts"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    }
+  ]
+}

@@ -10,20 +10,10 @@ export async function GET(request: NextRequest) {
     const includePostCount = searchParams.get("includePostCount") === "true"
 
     const categories = await prisma.category.findMany({
-      include: {
-        _count: includePostCount ? {
-          select: {
-            posts: {
-              where: {
-                status: "PUBLISHED",
-              },
-            },
-          },
-        } : undefined,
-      },
-      orderBy: {
-        name: "asc",
-      },
+      include: includePostCount
+        ? { _count: { select: { posts: true } } }
+        : undefined,
+      orderBy: { name: "asc" },
     })
 
     return NextResponse.json(categories)

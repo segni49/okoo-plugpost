@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUser } from "@/lib/auth-utils"
 import { createTagSchema, generateSlug } from "@/lib/validations"
@@ -10,7 +11,7 @@ export async function GET(request: NextRequest) {
     const includePostCount = searchParams.get("includePostCount") === "true"
     const search = searchParams.get("search")
 
-    const where: any = {}
+    const where: Prisma.TagWhereInput = {}
     if (search) {
       where.name = {
         contains: search,

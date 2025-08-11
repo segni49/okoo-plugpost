@@ -4,7 +4,7 @@ interface PerformanceMetric {
   name: string
   value: number
   timestamp: number
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 class PerformanceMonitor {
@@ -24,7 +24,11 @@ class PerformanceMonitor {
         // Largest Contentful Paint (LCP)
         const lcpObserver = new PerformanceObserver((list) => {
           const entries = list.getEntries()
-          const lastEntry = entries[entries.length - 1]
+          const lastEntry = entries[entries.length - 1] as unknown as {
+            startTime: number
+            element?: { tagName?: string }
+            url?: string
+          }
           this.recordMetric("LCP", lastEntry.startTime, {
             element: lastEntry.element?.tagName,
             url: lastEntry.url,
@@ -36,7 +40,7 @@ class PerformanceMonitor {
         // First Input Delay (FID)
         const fidObserver = new PerformanceObserver((list) => {
           const entries = list.getEntries()
-          entries.forEach((entry: any) => {
+          entries.forEach((entry) => {
             this.recordMetric("FID", entry.processingStart - entry.startTime, {
               eventType: entry.name,
             })
@@ -49,9 +53,10 @@ class PerformanceMonitor {
         let clsValue = 0
         const clsObserver = new PerformanceObserver((list) => {
           const entries = list.getEntries()
-          entries.forEach((entry: any) => {
-            if (!entry.hadRecentInput) {
-              clsValue += entry.value
+          entries.forEach((entry) => {
+            const ls = entry as unknown as { hadRecentInput?: boolean; value: number }
+            if (!ls.hadRecentInput) {
+              clsValue += ls.value
             }
           })
           this.recordMetric("CLS", clsValue)
@@ -62,10 +67,18 @@ class PerformanceMonitor {
         // Navigation timing
         const navigationObserver = new PerformanceObserver((list) => {
           const entries = list.getEntries()
-          entries.forEach((entry: any) => {
-            this.recordMetric("TTFB", entry.responseStart - entry.requestStart)
-            this.recordMetric("DOMContentLoaded", entry.domContentLoadedEventEnd - entry.domContentLoadedEventStart)
-            this.recordMetric("LoadComplete", entry.loadEventEnd - entry.loadEventStart)
+          entries.forEach((entry) => {
+            const nav = entry as unknown as {
+              responseStart: number
+              requestStart: number
+              domContentLoadedEventEnd: number
+              domContentLoadedEventStart: number
+              loadEventEnd: number
+              loadEventStart: number
+            }
+            this.recordMetric("TTFB", nav.responseStart - nav.requestStart)
+            this.recordMetric("DOMContentLoaded", nav.domContentLoadedEventEnd - nav.domContentLoadedEventStart)
+            this.recordMetric("LoadComplete", nav.loadEventEnd - nav.loadEventStart)
           })
         })
         navigationObserver.observe({ entryTypes: ["navigation"] })
@@ -74,16 +87,22 @@ class PerformanceMonitor {
         // Resource timing
         const resourceObserver = new PerformanceObserver((list) => {
           const entries = list.getEntries()
-          entries.forEach((entry: any) => {
-            if (entry.initiatorType === "img") {
-              this.recordMetric("ImageLoad", entry.duration, {
-                url: entry.name,
-                size: entry.transferSize,
+          entries.forEach((entry) => {
+            const res = entry as unknown as {
+              initiatorType?: string
+              duration: number
+              name?: string
+              transferSize?: number
+            }
+            if (res.initiatorType === "img") {
+              this.recordMetric("ImageLoad", res.duration, {
+                url: res.name,
+                size: res.transferSize,
               })
-            } else if (entry.initiatorType === "script") {
-              this.recordMetric("ScriptLoad", entry.duration, {
-                url: entry.name,
-                size: entry.transferSize,
+            } else if (res.initiatorType === "script") {
+              this.recordMetric("ScriptLoad", res.duration, {
+                url: res.name,
+                size: res.transferSize,
               })
             }
           })
@@ -96,7 +115,7 @@ class PerformanceMonitor {
     }
   }
 
-  recordMetric(name: string, value: number, metadata?: Record<string, any>) {
+  recordMetric(name: string, value: number, metadata?: Record<string, unknown>) {
     const metric: PerformanceMetric = {
       name,
       value,
@@ -199,7 +218,7 @@ export function getPerformanceMonitor(): PerformanceMonitor {
 export function usePerformanceMonitor() {
   const monitor = getPerformanceMonitor()
 
-  const recordCustomMetric = (name: string, value: number, metadata?: Record<string, any>) => {
+  const recordCustomMetric = (name: string, value: number, metadata?: Record<string, unknown>) => {
     monitor.recordMetric(name, value, metadata)
   }
 

@@ -1,21 +1,21 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
-import { 
-  Calendar, 
-  Clock, 
-  Eye, 
-  MessageSquare, 
-  Heart, 
+import Image from "next/image"
+import {
+  Calendar,
+  Clock,
+  Eye,
+  MessageSquare,
+  Heart,
   Search,
-  Filter,
   Grid,
   List
 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Loading, PostCardSkeleton } from "@/components/ui/loading"
+import { PostCardSkeleton } from "@/components/ui/loading"
 import { Pagination } from "@/components/ui/pagination"
 import { formatRelativeTime, truncateText } from "@/lib/utils"
 
@@ -69,15 +69,7 @@ export default function PostsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
 
-  useEffect(() => {
-    fetchPosts()
-  }, [currentPage, searchTerm, selectedCategory, sortBy])
-
-  useEffect(() => {
-    fetchCategories()
-  }, [])
-
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams({
@@ -100,7 +92,15 @@ export default function PostsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [currentPage, searchTerm, selectedCategory, sortBy])
+
+  useEffect(() => {
+    fetchPosts()
+  }, [fetchPosts])
+
+  useEffect(() => {
+    fetchCategories()
+  }, [])
 
   const fetchCategories = async () => {
     try {
@@ -118,14 +118,15 @@ export default function PostsPage() {
     <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">
       {post.featuredImage && (
         <div className="relative h-48 overflow-hidden">
-          <img
+          <Image
             src={post.featuredImage}
             alt={post.title}
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+            fill
+            className="object-cover hover:scale-105 transition-transform duration-300"
           />
           {post.category && (
             <div className="absolute top-4 left-4">
-              <Badge 
+              <Badge
                 style={{ backgroundColor: post.category.color }}
                 className="text-white"
               >
@@ -138,15 +139,7 @@ export default function PostsPage() {
       <CardContent className="p-6 flex flex-col h-full">
         <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
           <div className="flex items-center space-x-2">
-            {post.author.image ? (
-              <img
-                src={post.author.image}
-                alt={post.author.name}
-                className="w-6 h-6 rounded-full"
-              />
-            ) : (
-              <div className="w-6 h-6 rounded-full bg-gray-300" />
-            )}
+            <div className="w-6 h-6 rounded-full bg-gray-300" />
             <span>{post.author.name}</span>
           </div>
           <div className="flex items-center space-x-1">
@@ -196,10 +189,11 @@ export default function PostsPage() {
           {post.featuredImage && (
             <div className="flex-shrink-0">
               <div className="relative w-32 h-24 overflow-hidden rounded-lg">
-                <img
+                <Image
                   src={post.featuredImage}
                   alt={post.title}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
                 />
               </div>
             </div>
@@ -207,15 +201,7 @@ export default function PostsPage() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-4 text-sm text-gray-500 mb-2">
               <div className="flex items-center space-x-2">
-                {post.author.image ? (
-                  <img
-                    src={post.author.image}
-                    alt={post.author.name}
-                    className="w-5 h-5 rounded-full"
-                  />
-                ) : (
-                  <div className="w-5 h-5 rounded-full bg-gray-300" />
-                )}
+                <div className="w-5 h-5 rounded-full bg-gray-300" />
                 <span>{post.author.name}</span>
               </div>
               <span>•</span>
@@ -299,6 +285,7 @@ export default function PostsPage() {
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label="Filter posts by category"
               >
                 <option value="all">All Categories</option>
                 {categories.map((category) => (
@@ -315,6 +302,7 @@ export default function PostsPage() {
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label="Sort posts by"
               >
                 <option value="publishedAt">Latest</option>
                 <option value="viewCount">Most Popular</option>
@@ -325,22 +313,28 @@ export default function PostsPage() {
             {/* View Mode */}
             <div className="flex border border-gray-300 rounded-lg overflow-hidden">
               <button
+                type="button"
                 onClick={() => setViewMode("grid")}
                 className={`px-3 py-2 ${
                   viewMode === "grid"
                     ? "bg-blue-600 text-white"
                     : "bg-white text-gray-700 hover:bg-gray-50"
                 }`}
+                aria-label="Grid view"
+                title="Grid view"
               >
                 <Grid className="w-5 h-5" />
               </button>
               <button
+                type="button"
                 onClick={() => setViewMode("list")}
                 className={`px-3 py-2 ${
                   viewMode === "list"
                     ? "bg-blue-600 text-white"
                     : "bg-white text-gray-700 hover:bg-gray-50"
                 }`}
+                aria-label="List view"
+                title="List view"
               >
                 <List className="w-5 h-5" />
               </button>

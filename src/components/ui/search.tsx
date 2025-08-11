@@ -23,7 +23,7 @@ export function Search({
 }: SearchProps) {
   const [query, setQuery] = useState("")
   const [isFocused, setIsFocused] = useState(false)
-  const debounceRef = useRef<NodeJS.Timeout>()
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -76,7 +76,10 @@ export function Search({
           
           {query && !loading && (
             <button
+              type="button"
               onClick={handleClear}
+              aria-label="Clear search"
+              title="Clear search"
               className="text-gray-400 hover:text-gray-600 transition-colors"
             >
               <X className="w-4 h-4" />
@@ -123,7 +126,7 @@ export function SearchWithSuggestions({
   const [isOpen, setIsOpen] = useState(false)
   const [query, setQuery] = useState("")
   const containerRef = useRef<HTMLDivElement>(null)
-  const debounceRef = useRef<NodeJS.Timeout>()
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -232,7 +235,7 @@ export function SearchWithSuggestions({
               }}
               className="text-xs text-blue-600 hover:text-blue-800"
             >
-              See all results for "{query}"
+              See all results for &quot;{query}&quot;
             </button>
           </div>
         </div>

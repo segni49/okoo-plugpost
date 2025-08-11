@@ -1,18 +1,15 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  Edit, 
-  Trash2, 
-  Eye, 
-  Calendar,
-  MoreHorizontal,
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Eye,
   Clock,
   CheckCircle,
   XCircle,
@@ -57,20 +54,7 @@ export default function PostsManagementPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
 
-  useEffect(() => {
-    if (status === "loading") return
-    if (!session) {
-      router.push("/auth/signin")
-      return
-    }
-    if (session.user.role !== "ADMIN" && session.user.role !== "EDITOR") {
-      router.push("/")
-      return
-    }
-    fetchPosts()
-  }, [session, status, router, currentPage, statusFilter, searchTerm])
-
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams({
@@ -91,7 +75,20 @@ export default function PostsManagementPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [currentPage, statusFilter, searchTerm])
+
+  useEffect(() => {
+    if (status === "loading") return
+    if (!session) {
+      router.push("/auth/signin")
+      return
+    }
+    if (session.user.role !== "ADMIN" && session.user.role !== "EDITOR") {
+      router.push("/")
+      return
+    }
+    fetchPosts()
+  }, [session, status, router, currentPage, statusFilter, searchTerm, fetchPosts])
 
   const handleDeletePost = async (postId: string) => {
     if (!confirm("Are you sure you want to delete this post?")) return
@@ -207,6 +204,8 @@ export default function PostsManagementPage() {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as PostStatus | "ALL")}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              title="Filter posts by status"
+              aria-label="Filter posts by status"
             >
               <option value="ALL">All Status</option>
               <option value={PostStatus.PUBLISHED}>Published</option>
@@ -225,12 +224,14 @@ export default function PostsManagementPage() {
             </span>
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={() => handleBulkAction("delete")}
                 className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
               >
                 Delete Selected
               </button>
               <button
+                type="button"
                 onClick={() => setSelectedPosts([])}
                 className="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700"
               >
@@ -247,7 +248,8 @@ export default function PostsManagementPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <span className="sr-only">Select All</span>
                   <input
                     type="checkbox"
                     checked={selectedPosts.length === posts.length && posts.length > 0}
@@ -259,6 +261,8 @@ export default function PostsManagementPage() {
                       }
                     }}
                     className="rounded border-gray-300"
+                    title="Select all posts"
+                    aria-label="Select all posts"
                   />
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -299,6 +303,8 @@ export default function PostsManagementPage() {
                         }
                       }}
                       className="rounded border-gray-300"
+                      title={`Select post: ${post.title}`}
+                      aria-label={`Select post: ${post.title}`}
                     />
                   </td>
                   <td className="px-6 py-4">
@@ -321,21 +327,15 @@ export default function PostsManagementPage() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center">
-                      {post.author.image && (
-                        <img
-                          className="h-8 w-8 rounded-full mr-3"
-                          src={post.author.image}
-                          alt={post.author.name}
-                        />
-                      )}
+                      <div className="h-8 w-8 rounded-full bg-gray-300 mr-3" />
                       <div className="text-sm text-gray-900">{post.author.name}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     {post.category && (
                       <span
-                        className="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-white"
-                        style={{ backgroundColor: post.category.color }}
+                        className="inline-flex px-2 py-1 text-xs font-semibold rounded-full text-white bg-gray-600"
+                        data-category-color={post.category.color}
                       >
                         {post.category.name}
                       </span>
@@ -380,6 +380,7 @@ export default function PostsManagementPage() {
                         <Edit className="w-4 h-4" />
                       </Link>
                       <button
+                        type="button"
                         onClick={() => handleDeletePost(post.id)}
                         className="text-red-600 hover:text-red-900"
                         title="Delete Post"
@@ -399,6 +400,7 @@ export default function PostsManagementPage() {
           <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
             <div className="flex-1 flex justify-between sm:hidden">
               <button
+                type="button"
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
                 className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
@@ -406,6 +408,7 @@ export default function PostsManagementPage() {
                 Previous
               </button>
               <button
+                type="button"
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
                 className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
@@ -423,6 +426,7 @@ export default function PostsManagementPage() {
               <div>
                 <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
                   <button
+                    type="button"
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
                     className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
@@ -430,6 +434,7 @@ export default function PostsManagementPage() {
                     Previous
                   </button>
                   <button
+                    type="button"
                     onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}
                     className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
