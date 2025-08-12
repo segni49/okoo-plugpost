@@ -19,13 +19,13 @@ async function main() {
     update: {},
     create: {
       email: 'admin@plugpost.dev',
-      name: 'Alex Admin',
+      name: 'Segni Admin',
       password: hashedPassword,
       role: UserRole.ADMIN,
       status: UserStatus.ACTIVE,
       bio: 'Platform administrator with full system access. Passionate about content management and community building.',
       website: 'https://alexadmin.dev',
-      location: 'San Francisco, CA',
+      location: 'Addis ababa, et',
       emailVerified: new Date(),
     },
   })
@@ -37,13 +37,13 @@ async function main() {
     update: {},
     create: {
       email: 'editor@plugpost.dev',
-      name: 'Emma Editor',
+      name: 'Hojiwak Editor',
       password: editorPassword,
       role: UserRole.EDITOR,
       status: UserStatus.ACTIVE,
       bio: 'Content editor and moderator. Specializes in technical writing and community management.',
       website: 'https://emmaeditor.blog',
-      location: 'New York, NY',
+      location: 'Addis Ababa, et',
       emailVerified: new Date(),
     },
   })
@@ -55,13 +55,13 @@ async function main() {
     update: {},
     create: {
       email: 'contributor@plugpost.dev',
-      name: 'Chris Contributor',
+      name: 'mulugeta Contributor',
       password: contributorPassword,
       role: UserRole.CONTRIBUTOR,
       status: UserStatus.ACTIVE,
       bio: 'Full-stack developer and technical writer. Loves sharing knowledge about web development and programming.',
       website: 'https://chriscontributor.dev',
-      location: 'Austin, TX',
+      location: 'Addis Ababa, ethiopia',
       emailVerified: new Date(),
     },
   })

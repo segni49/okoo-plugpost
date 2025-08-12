@@ -45,7 +45,7 @@ interface Post {
 
 export default function PostsManagementPage() {
   const { data: session, status } = useSession()
-  const canAdmin = session?.user?.role === "ADMIN"
+
   const canEdit = session?.user?.role === "ADMIN" || session?.user?.role === "EDITOR"
   const canContribute = session?.user?.role === "CONTRIBUTOR"
   const router = useRouter()
