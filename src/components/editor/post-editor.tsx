@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createPostSchema } from "@/lib/validations"
-import { RichTextEditor } from "./rich-text-editor"
+import { RichTextEditorWrapper as RichTextEditor } from "./rich-text-editor-wrapper"
 import { PostStatus } from "@prisma/client"
 import { z } from "zod"
 

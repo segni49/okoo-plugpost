@@ -15,7 +15,7 @@ import TableCell from "@tiptap/extension-table-cell"
 import TableHeader from "@tiptap/extension-table-header"
 import { createLowlight } from "lowlight"
 import { EditorToolbar } from "./editor-toolbar"
-import { useCallback } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 interface RichTextEditorProps {
   content?: string
@@ -32,58 +32,66 @@ export function RichTextEditor({
   editable = true,
   className = "",
 }: RichTextEditorProps) {
+  const [isMounted, setIsMounted] = useState(false)
   const lowlight = createLowlight()
 
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        codeBlock: false, // We'll use CodeBlockLowlight instead
-      }),
-      Image.configure({
-        HTMLAttributes: {
-          class: "max-w-full h-auto rounded-lg",
-        },
-      }),
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          class: "text-blue-600 hover:text-blue-800 underline",
-        },
-      }),
-      Placeholder.configure({
-        placeholder,
-      }),
-      TextStyle,
-      Color,
-      Highlight.configure({
-        multicolor: true,
-      }),
-      CodeBlockLowlight.configure({
-        lowlight,
-        HTMLAttributes: {
-          class: "bg-gray-100 rounded-md p-4 font-mono text-sm",
-        },
-      }),
-      Table.configure({
-        resizable: true,
-      }),
-      TableRow,
-      TableHeader,
-      TableCell,
-    ],
-    content,
-    editable,
-    immediatelyRender: false,
-    onUpdate: ({ editor }) => {
-      const html = editor.getHTML()
-      onChange?.(html)
-    },
-    editorProps: {
-      attributes: {
-        class: `prose prose-lg max-w-none focus:outline-none ${className}`,
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  const editor = useEditor(
+    isMounted ? {
+      extensions: [
+        StarterKit.configure({
+          codeBlock: false, // We'll use CodeBlockLowlight instead
+        }),
+        Image.configure({
+          HTMLAttributes: {
+            class: "max-w-full h-auto rounded-lg",
+          },
+        }),
+        Link.configure({
+          openOnClick: false,
+          HTMLAttributes: {
+            class: "text-blue-600 hover:text-blue-800 underline",
+          },
+        }),
+        Placeholder.configure({
+          placeholder,
+        }),
+        TextStyle,
+        Color,
+        Highlight.configure({
+          multicolor: true,
+        }),
+        CodeBlockLowlight.configure({
+          lowlight,
+          HTMLAttributes: {
+            class: "bg-gray-100 rounded-md p-4 font-mono text-sm",
+          },
+        }),
+        Table.configure({
+          resizable: true,
+        }),
+        TableRow,
+        TableHeader,
+        TableCell,
+      ],
+      content,
+      editable,
+      immediatelyRender: false,
+      onUpdate: ({ editor }) => {
+        const html = editor.getHTML()
+        onChange?.(html)
       },
-    },
-  })
+      editorProps: {
+        attributes: {
+          class: `prose prose-lg max-w-none focus:outline-none ${className}`,
+        },
+      },
+    } : null,
+    [isMounted, content, editable, placeholder, className, onChange]
+  )
 
   const addImage = useCallback(() => {
     const url = window.prompt("Enter image URL:")
@@ -108,8 +116,14 @@ export function RichTextEditor({
     editor?.chain().focus().extendMarkRange("link").setLink({ href: url }).run()
   }, [editor])
 
-  if (!editor) {
-    return null
+  if (!isMounted || !editor) {
+    return (
+      <div className="border border-gray-300 rounded-lg overflow-hidden">
+        <div className="p-4 min-h-[200px] flex items-center justify-center text-gray-500">
+          {!isMounted ? "Loading editor..." : "Initializing editor..."}
+        </div>
+      </div>
+    )
   }
 
   return (
