@@ -525,7 +525,7 @@ The PlugPost platform now provides:
 
 ---
 
-*Documentation created: January 2024*
+
 *Platform version: 1.0.0*
 *Total features documented: 100+*
 *API endpoints documented: 50+*
