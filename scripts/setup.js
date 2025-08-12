@@ -82,8 +82,8 @@ const createEnvFile = () => {
     }
   } else {
     log('   No DATABASE_URL found, using default Neon PostgreSQL', 'yellow')
-    databaseUrl = "postgresql://neondb_owner:npg_JUn8Rglxtde2@ep-wild-breeze-af6hig0a-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-    databaseUrlUnpooled = "postgresql://neondb_owner:npg_JUn8Rglxtde2@ep-wild-breeze-af6hig0a.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    databaseUrl = "postgresql://neondb_owner:npg_5msDtx4GaEfi@ep-raspy-pond-afc58aej-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    databaseUrlUnpooled = "postgresql://neondb_owner:npg_5msDtx4GaEfi@ep-raspy-pond-afc58aej.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
   }
 
   // Generate new secret if not exists
