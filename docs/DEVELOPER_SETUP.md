@@ -12,7 +12,7 @@ cd plugpost
 # 2. Install dependencies
 npm install
 
-# 3. Set up environment and database
+# 3. Set up  database
 npm run setup
 ```
 
