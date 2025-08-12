@@ -59,6 +59,7 @@ interface Category {
 }
 
 export default function PostsPage() {
+  const [mounted, setMounted] = useState(false)
   const [posts, setPosts] = useState<Post[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
@@ -68,6 +69,10 @@ export default function PostsPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const fetchPosts = useCallback(async () => {
     try {
@@ -250,6 +255,26 @@ export default function PostsPage() {
       </CardContent>
     </Card>
   )
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">All Posts</h1>
+            <p className="text-xl text-gray-600">
+              Discover our latest articles and insights
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <PostCardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
