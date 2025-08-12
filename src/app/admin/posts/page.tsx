@@ -45,6 +45,9 @@ interface Post {
 
 export default function PostsManagementPage() {
   const { data: session, status } = useSession()
+  const canAdmin = session?.user?.role === "ADMIN"
+  const canEdit = session?.user?.role === "ADMIN" || session?.user?.role === "EDITOR"
+  const canContribute = session?.user?.role === "CONTRIBUTOR"
   const router = useRouter()
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
@@ -379,14 +382,16 @@ export default function PostsManagementPage() {
                       >
                         <Edit className="w-4 h-4" />
                       </Link>
-                      <button
-                        type="button"
-                        onClick={() => handleDeletePost(post.id)}
-                        className="text-red-600 hover:text-red-900"
-                        title="Delete Post"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {(canEdit || (canContribute && post.author.id === session?.user?.id)) && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeletePost(post.id)}
+                          className="text-red-600 hover:text-red-900"
+                          title="Delete Post"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

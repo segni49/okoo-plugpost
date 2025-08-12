@@ -180,7 +180,8 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
       <PostEditor
         initialData={initialData}
         onSave={handleSave}
-        onPublish={handlePublish}
+        onPublish={session?.user?.role !== "CONTRIBUTOR" ? handlePublish : undefined}
+        canPublish={session?.user?.role === "ADMIN" || session?.user?.role === "EDITOR"}
         isLoading={isLoading}
         categories={categories}
       />

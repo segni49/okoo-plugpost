@@ -58,17 +58,13 @@ jest.mock('next/server', () => {
     },
   }
 })
-// Minimal NextRequest polyfill for tests
-class NextRequestPolyfill {
-  url: string
-  body: any
-  constructor(input: string, init?: { body?: any }) {
-    this.url = input
-    this.body = init?.body
-  }
-  async json() {
-    return this.body ?? {}
-  }
+// Minimal NextRequest polyfill for tests (JS syntax)
+function NextRequestPolyfill(input, init) {
+  this.url = input
+  this.body = init && init.body
+}
+NextRequestPolyfill.prototype.json = async function () {
+  return this.body || {}
 }
 
 module.exports.NextRequest = NextRequestPolyfill

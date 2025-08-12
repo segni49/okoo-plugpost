@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url, "http://localhost")
     const query = postQuerySchema.parse(Object.fromEntries(searchParams))
+    const isAdminView = searchParams.get("admin") === "true"
 
     const where: Prisma.PostWhereInput = {}
 
@@ -30,11 +31,23 @@ export async function GET(request: NextRequest) {
       ]
     }
 
-    // For public access, only show published posts
     const user = await getCurrentUser()
-    if (!user || (user.role !== "ADMIN" && user.role !== "EDITOR")) {
-      where.status = PostStatus.PUBLISHED
-      where.publishedAt = { lte: new Date() }
+
+    if (isAdminView) {
+      // In admin, show all for ADMIN/EDITOR; for CONTRIBUTOR, only their posts
+      if (user?.role === "CONTRIBUTOR") {
+        where.authorId = user.id
+      } else if (!user || (user.role !== "ADMIN" && user.role !== "EDITOR")) {
+        // If somehow not authorized in admin view, restrict to published as fallback
+        where.status = PostStatus.PUBLISHED
+        where.publishedAt = { lte: new Date() }
+      }
+    } else {
+      // Public view: only published for non-admin/editor
+      if (!user || (user.role !== "ADMIN" && user.role !== "EDITOR")) {
+        where.status = PostStatus.PUBLISHED
+        where.publishedAt = { lte: new Date() }
+      }
     }
 
     const [posts, total] = await Promise.all([
@@ -165,6 +178,14 @@ export async function POST(request: NextRequest) {
         })
         tagConnections.push({ tagId: tag.id })
       }
+    }
+
+    // Enforce contributor cannot publish
+    if (user.role === "CONTRIBUTOR" && data.status === PostStatus.PUBLISHED) {
+      return NextResponse.json(
+        { error: "Contributors cannot publish posts" },
+        { status: 403 }
+      )
     }
 
     const post = await prisma.post.create({

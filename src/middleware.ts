@@ -87,10 +87,18 @@ export default withAuth(
       }
     }
 
-    // Check admin/editor permissions for admin routes
+    // Check role-based access for admin routes
     if (isAdminPage && isAuth) {
       const userRole = token?.role as string
-      if (userRole !== "ADMIN" && userRole !== "EDITOR") {
+      if (userRole === "ADMIN" || userRole === "EDITOR") {
+        // allowed
+      } else if (userRole === "CONTRIBUTOR") {
+        const allowedContributorPaths = ["/admin/posts", "/admin/profile"]
+        const isAllowed = allowedContributorPaths.some(p => pathname === p || pathname.startsWith(`${p}/`))
+        if (!isAllowed) {
+          return NextResponse.redirect(new URL("/", req.url))
+        }
+      } else {
         return NextResponse.redirect(new URL("/", req.url))
       }
     }

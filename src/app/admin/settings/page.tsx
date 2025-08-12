@@ -1,17 +1,32 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Loading } from "@/components/ui/loading"
 
 export default function AdminSettingsPage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [settings, setSettings] = useState<Record<string, string>>({})
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    if (status === "loading") return
+    if (!session) {
+      router.push("/auth/signin")
+      return
+    }
+    if (session.user.role !== "ADMIN") {
+      router.push("/admin")
+      return
+    }
+    load()
+  }, [session, status, router])
 
   const load = async () => {
     try {

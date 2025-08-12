@@ -111,7 +111,8 @@ export default function NewPostPage() {
     <div className="min-h-screen bg-gray-50">
       <PostEditor
         onSave={handleSave}
-        onPublish={handlePublish}
+        onPublish={session?.user?.role !== "CONTRIBUTOR" ? handlePublish : undefined}
+        canPublish={session?.user?.role === "ADMIN" || session?.user?.role === "EDITOR"}
         isLoading={isLoading}
         categories={categories}
       />

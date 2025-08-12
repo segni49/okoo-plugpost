@@ -19,14 +19,14 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const query = commentQuerySchema.parse({
-      page: searchParams.get("page"),
-      limit: searchParams.get("limit"),
-      postId: searchParams.get("postId"),
-      authorId: searchParams.get("authorId"),
-      search: searchParams.get("search"),
-      sortBy: searchParams.get("sortBy"),
-      sortOrder: searchParams.get("sortOrder"),
-      admin: searchParams.get("admin"),
+      page: searchParams.get("page") ?? undefined,
+      limit: searchParams.get("limit") ?? undefined,
+      postId: searchParams.get("postId") ?? undefined,
+      authorId: searchParams.get("authorId") ?? undefined,
+      search: searchParams.get("search") ?? undefined,
+      sortBy: searchParams.get("sortBy") ?? undefined,
+      sortOrder: searchParams.get("sortOrder") ?? undefined,
+      admin: searchParams.get("admin") ?? undefined,
     })
 
     const user = await getCurrentUser()

@@ -212,6 +212,14 @@ export async function PUT(
       }
     }
 
+    // Enforce contributor cannot publish
+    if (user.role === "CONTRIBUTOR" && data.status === PostStatus.PUBLISHED) {
+      return NextResponse.json(
+        { error: "Contributors cannot publish posts" },
+        { status: 403 }
+      )
+    }
+
     // Handle status change to published
     let publishedAt = existingPost.publishedAt
     if (data.status === PostStatus.PUBLISHED && existingPost.status !== PostStatus.PUBLISHED) {

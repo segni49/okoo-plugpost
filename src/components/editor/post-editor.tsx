@@ -13,7 +13,8 @@ type PostFormData = z.infer<typeof createPostSchema>
 interface PostEditorProps {
   initialData?: Partial<PostFormData>
   onSave: (data: PostFormData) => Promise<void>
-  onPublish: (data: PostFormData) => Promise<void>
+  onPublish?: (data: PostFormData) => Promise<void>
+  canPublish?: boolean
   isLoading?: boolean
   categories?: Array<{ id: string; name: string }>
 }
@@ -22,6 +23,7 @@ export function PostEditor({
   initialData,
   onSave,
   onPublish,
+  canPublish = false,
   isLoading = false,
   categories = [],
 }: PostEditorProps) {
@@ -98,6 +100,7 @@ export function PostEditor({
   }
 
   const handlePublish = async (data: PostFormData) => {
+    if (!onPublish) return
     await onPublish({ ...data, content, status: PostStatus.PUBLISHED })
   }
 
@@ -120,14 +123,16 @@ export function PostEditor({
             >
               Save Draft
             </button>
-            <button
-              type="button"
-              onClick={handleSubmit(handlePublish)}
-              disabled={isLoading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-            >
-              {isLoading ? "Publishing..." : "Publish"}
-            </button>
+            {canPublish && (
+              <button
+                type="button"
+                onClick={handleSubmit(handlePublish)}
+                disabled={isLoading}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              >
+                {isLoading ? "Publishing..." : "Publish"}
+              </button>
+            )}
           </div>
         </div>
       </div>

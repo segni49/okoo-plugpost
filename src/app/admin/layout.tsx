@@ -31,13 +31,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   useEffect(() => {
     if (status === "loading") return
-    
+
     if (!session) {
       router.push("/auth/signin")
       return
     }
 
-    if (session.user.role !== "ADMIN" && session.user.role !== "EDITOR") {
+    // Allow ADMIN and EDITOR across admin, and allow CONTRIBUTOR for limited sections (middleware enforces exact paths)
+    if (session.user.role !== "ADMIN" && session.user.role !== "EDITOR" && session.user.role !== "CONTRIBUTOR") {
       router.push("/")
       return
     }
@@ -51,9 +52,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     )
   }
 
-  if (!session || (session.user.role !== "ADMIN" && session.user.role !== "EDITOR")) {
-    return null
-  }
+  if (!session) return null
 
   const navigation = [
     {
@@ -108,9 +107,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     },
   ]
 
-  const filteredNavigation = navigation.filter(item => 
-    !item.adminOnly || session.user.role === "ADMIN"
-  )
+    // Profile is available via top bar; not a sidebar item
+    // { name: "Profile", href: "/admin/profile", icon: User, current: false },
+
+  const filteredNavigation = navigation.filter(item => {
+    if (session.user.role === "ADMIN") return true
+    if (session.user.role === "EDITOR") return !item.adminOnly
+    if (session.user.role === "CONTRIBUTOR") {
+      // Only allow Posts for contributors (Profile accessible via header link)
+      return ["/admin/posts"].includes(item.href)
+    }
+    return false
+  })
 
   return (
     <div className="min-h-screen bg-gray-50">
