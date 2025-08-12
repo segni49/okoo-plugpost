@@ -25,23 +25,84 @@ const generateSecretKey = () => {
   return crypto.randomBytes(32).toString('hex')
 }
 
-const createEnvFile = () => {
-  log('🔧 Creating environment configuration...', 'cyan')
+const parseEnvFile = (envPath) => {
+  if (!fs.existsSync(envPath)) {
+    return {}
+  }
 
-  // Use a free Neon PostgreSQL database for instant setup
+  const envContent = fs.readFileSync(envPath, 'utf8')
+  const envVars = {}
+
+  envContent.split('\n').forEach(line => {
+    const trimmedLine = line.trim()
+    if (trimmedLine && !trimmedLine.startsWith('#')) {
+      const [key, ...valueParts] = trimmedLine.split('=')
+      if (key && valueParts.length > 0) {
+        // Remove quotes if present
+        let value = valueParts.join('=').trim()
+        if ((value.startsWith('"') && value.endsWith('"')) ||
+            (value.startsWith("'") && value.endsWith("'"))) {
+          value = value.slice(1, -1)
+        }
+        envVars[key.trim()] = value
+      }
+    }
+  })
+
+  return envVars
+}
+
+const createEnvFile = () => {
+  log('🔧 Setting up environment configuration...', 'cyan')
+
+  const envPath = '.env'
+  const existingEnv = parseEnvFile(envPath)
+
+  // Check if DATABASE_URL already exists
+  let databaseUrl = existingEnv.DATABASE_URL
+  let databaseUrlUnpooled = existingEnv.DATABASE_URL_UNPOOLED
+  let usingExistingDatabase = false
+
+  if (databaseUrl) {
+    log('   Found existing DATABASE_URL in .env file', 'yellow')
+    log('   Preserving your custom database configuration', 'yellow')
+    usingExistingDatabase = true
+
+    // If DATABASE_URL exists but DATABASE_URL_UNPOOLED doesn't, try to generate it
+    if (!databaseUrlUnpooled) {
+      // For Neon databases, convert pooler URL to direct URL
+      if (databaseUrl.includes('pooler.') && databaseUrl.includes('neon.tech')) {
+        databaseUrlUnpooled = databaseUrl.replace('-pooler.', '.')
+        log('   Generated DATABASE_URL_UNPOOLED from existing pooled URL', 'yellow')
+      } else {
+        // For other databases, use the same URL as direct connection
+        databaseUrlUnpooled = databaseUrl
+        log('   Using same URL for DATABASE_URL_UNPOOLED (direct connection)', 'yellow')
+      }
+    }
+  } else {
+    log('   No DATABASE_URL found, using default Neon PostgreSQL', 'yellow')
+    databaseUrl = "postgresql://neondb_owner:npg_JUn8Rglxtde2@ep-wild-breeze-af6hig0a-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    databaseUrlUnpooled = "postgresql://neondb_owner:npg_JUn8Rglxtde2@ep-wild-breeze-af6hig0a.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+  }
+
+  // Generate new secret if not exists
+  const nextAuthSecret = existingEnv.NEXTAUTH_SECRET || generateSecretKey()
+
   const envContent = `# PlugPost Environment Configuration
 # Generated automatically by setup script
 
-# Database Configuration (Free Neon PostgreSQL - Ready to use!)
-DATABASE_URL="postgresql://neondb_owner:npg_JUn8Rglxtde2@ep-wild-breeze-af6hig0a-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+# Database Configuration${usingExistingDatabase ? ' (Using your existing configuration)' : ' (Free Neon PostgreSQL - Ready to use!)'}
+DATABASE_URL="${databaseUrl}"
+DATABASE_URL_UNPOOLED="${databaseUrlUnpooled}"
 
 # NextAuth Configuration
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="${generateSecretKey()}"
+NEXTAUTH_URL="${existingEnv.NEXTAUTH_URL || 'http://localhost:3000'}"
+NEXTAUTH_SECRET="${nextAuthSecret}"
 
 # Development Settings
-NODE_ENV="development"
-NEXT_PUBLIC_ENV="development"
+NODE_ENV="${existingEnv.NODE_ENV || 'development'}"
+NEXT_PUBLIC_ENV="${existingEnv.NEXT_PUBLIC_ENV || 'development'}"
 
 # Optional: OAuth Providers (uncomment and configure if needed)
 # GOOGLE_CLIENT_ID="your-google-client-id"
@@ -61,29 +122,35 @@ NEXT_PUBLIC_ENV="development"
 # SMTP_PASS="your-app-password"
 
 # Feature Flags
-FEATURE_COMMENTS="true"
-FEATURE_ANALYTICS="true"
-FEATURE_NEWSLETTER="true"
-FEATURE_SOCIAL_LOGIN="false"
+FEATURE_COMMENTS="${existingEnv.FEATURE_COMMENTS || 'true'}"
+FEATURE_ANALYTICS="${existingEnv.FEATURE_ANALYTICS || 'true'}"
+FEATURE_NEWSLETTER="${existingEnv.FEATURE_NEWSLETTER || 'true'}"
+FEATURE_SOCIAL_LOGIN="${existingEnv.FEATURE_SOCIAL_LOGIN || 'false'}"
 
 # Application Settings
-APP_NAME="PlugPost"
-APP_DESCRIPTION="Modern Blog Platform"
-APP_URL="http://localhost:3000"
+APP_NAME="${existingEnv.APP_NAME || 'PlugPost'}"
+APP_DESCRIPTION="${existingEnv.APP_DESCRIPTION || 'Modern Blog Platform'}"
+APP_URL="${existingEnv.APP_URL || 'http://localhost:3000'}"
 
 # Admin Configuration (default admin user)
-ADMIN_EMAIL="admin@plugpost.local"
-ADMIN_NAME="Admin User"
-ADMIN_PASSWORD="admin123"
+ADMIN_EMAIL="${existingEnv.ADMIN_EMAIL || 'admin@plugpost.local'}"
+ADMIN_NAME="${existingEnv.ADMIN_NAME || 'Admin User'}"
+ADMIN_PASSWORD="${existingEnv.ADMIN_PASSWORD || 'admin123'}"
 
 # Development Settings
-LOG_LEVEL="info"
-ENABLE_PERFORMANCE_MONITORING="true"
+LOG_LEVEL="${existingEnv.LOG_LEVEL || 'info'}"
+ENABLE_PERFORMANCE_MONITORING="${existingEnv.ENABLE_PERFORMANCE_MONITORING || 'true'}"
 `
 
-  fs.writeFileSync('.env', envContent)
-  log('✅ Environment file created with free PostgreSQL database!', 'green')
-  log('   Using Neon PostgreSQL - no local database setup required!', 'yellow')
+  fs.writeFileSync(envPath, envContent)
+
+  if (usingExistingDatabase) {
+    log('✅ Environment file updated with your existing database configuration!', 'green')
+    log('   Your custom DATABASE_URL has been preserved', 'green')
+  } else {
+    log('✅ Environment file created with free PostgreSQL database!', 'green')
+    log('   Using Neon PostgreSQL - no local database setup required!', 'yellow')
+  }
 }
 
 const setupDatabase = () => {
@@ -179,8 +246,14 @@ const displaySuccessMessage = () => {
   log('\n🌐 Access your blog at: http://localhost:3000', 'magenta')
   log('🔧 Admin dashboard at: http://localhost:3000/admin', 'magenta')
   log('\n💡 Database info:', 'bright')
-  log('   Using free Neon PostgreSQL (no local setup needed)', 'yellow')
-  log('   Database URL configured automatically', 'yellow')
+  const existingEnv = parseEnvFile('.env')
+  if (existingEnv.DATABASE_URL && !existingEnv.DATABASE_URL.includes('neon.tech')) {
+    log('   Using your custom database configuration', 'yellow')
+    log('   Database URL preserved from existing .env file', 'yellow')
+  } else {
+    log('   Using free Neon PostgreSQL (no local setup needed)', 'yellow')
+    log('   Database URL configured automatically', 'yellow')
+  }
   log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'green')
   log('Happy blogging! 🎉', 'bright')
 }
@@ -190,22 +263,17 @@ const main = () => {
   log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'blue')
   log('Setting up your blog platform in 3... 2... 1...', 'blue')
   log('')
-  
+
   try {
-    // Check if .env already exists
-    if (fs.existsSync('.env')) {
-      log('⚠️  .env file already exists. Skipping environment setup.', 'yellow')
-      log('   Delete .env file if you want to regenerate it.', 'yellow')
-    } else {
-      createEnvFile()
-    }
-    
+    // Always run createEnvFile - it now handles existing configurations intelligently
+    createEnvFile()
+
     checkDependencies()
     createDirectories()
     setupDatabase()
     seedDatabase()
     displaySuccessMessage()
-    
+
   } catch (error) {
     log('\n❌ Setup failed:', 'red')
     log(error.message, 'red')
