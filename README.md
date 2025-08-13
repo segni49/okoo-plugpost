@@ -5,7 +5,7 @@ A comprehensive, feature-rich blog platform built with Next.js 14, TypeScript, P
 ## ⚡ **SUPER SIMPLE SETUP** - Just 2 Commands!
 
 ```bash
-npm install
+npm install && npm run setup
 npm run dev
 ```
 
@@ -22,8 +22,8 @@ npm run dev
 
 ### 🔑 Default Login
 
-- **Email**: `admin@plugpost.local`
-- **Password**: `admin123`
+- **Email**: `admin@plugpost.dev`
+- **Password**: `dmin123!`
 - **Admin Dashboard**: [http://localhost:3000/admin](http://localhost:3000/admin)
 
 ### 🚀 One-Line Install (Alternative)

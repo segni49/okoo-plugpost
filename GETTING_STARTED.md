@@ -5,7 +5,8 @@ Welcome to PlugPost! This guide will get you up and running in under 2 minutes.
 ## ⚡ Quick Start (2 Commands)
 
 ```bash
-npm install
+git clone https://github.com/your-repo/plugpost.git
+npm install 
 npm run dev
 ```
 
@@ -15,8 +16,8 @@ npm run dev
 
 1. Go to [http://localhost:3000/admin](http://localhost:3000/admin)
 2. Login with:
-   - **Email**: `admin@plugpost.local`
-   - **Password**: `admin123`
+   - **Email**: `admin@plugpost.dev`
+   - **Password**: `Admin123!`
 
 ## 📝 Create Your First Post
 
