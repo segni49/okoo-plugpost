@@ -6,7 +6,7 @@ Get PlugPost running locally in under 5 minutes:
 
 ```bash
 # 1. Clone the repository
-git clone <https://github.com/your-username/plugpost.git>
+git clone https://github.com/segni49/okoo-plugpost
 cd plugpost
 
 # 2. Install dependencies

@@ -35,15 +35,15 @@ Welcome to the Okoo-PlugPost platform developer documentation. This comprehensiv
 
 ```bash
 # Clone and setup in one command
-git clone https://github.com/your-username/plugpost.git && cd okoo-plugpost && npm install && npm run setup
+git clone https://github.com/segni49/okoo-plugpost && cd okoo-plugpost && npm install && npm run setup
 ```
 
 ### 2. Manual Setup
 
 ```bash
 # Clone repository
-git clone https://github.com/your-username/plugpost.git
-cd plugpost
+git clone https://github.com/segni49/okoo-plugpost
+cd okoo-plugpost
 
 # Install dependencies
 npm install
