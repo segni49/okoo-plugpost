@@ -1,237 +1,423 @@
-# PlugPost - Modern Blog Platform
+# PlugPost Developer Documentation
 
-A comprehensive, feature-rich blog platform built with Next.js 14, TypeScript, Prisma, and NextAuth.js. PlugPost provides a complete solution for content management, user authentication, and blog administration.
+Welcome to the Okoo-PlugPost platform developer documentation. This comprehensive guide will help you understand, set up, and contribute to the PlugPost blogging platform.
 
-## ⚡ **SUPER SIMPLE SETUP** - Just 2 Commands!
+## 📚 Documentation Index
 
-```bash
-npm install && npm run setup
-npm run dev
-```
+### 🚀 Getting Started
 
-**That's it!** 🎉 Your blog is ready at [http://localhost:3000](http://localhost:3000)
+- **[Developer Setup Guide](./docs//DEVELOPER_SETUP.md)** - Complete setup instructions for new developers
+- **[Test Users & Credentials](./docs/TEST_USERS.md)** - Pre-configured test accounts for all user roles
+- **[Environment Configuration](../.env.example)** - Comprehensive environment variable guide
 
-### ✨ What Makes It So Simple?
+### 📖 API Reference
 
-- ✅ **Zero Configuration** - Everything is set up automatically
-- ✅ **No Database Setup** - Uses free cloud PostgreSQL (Neon)
-- ✅ **No Environment Variables** - Generated automatically
-- ✅ **Sample Data Included** - Ready to explore immediately
-- ✅ **No Docker Required** - Works on any machine with Node.js
-- ✅ **No Local Services** - Everything runs in the cloud
+- **[Complete API Documentation](./API_DOCUMENTATION.md)** - All 50+ API endpoints with examples
+- **[Authentication Guide](./AUTHENTICATION.md)** - Authentication flows and security
+- **[Database Schema](./DATABASE_SCHEMA.md)** - Complete database structure and relationships
 
-### 🔑 Default Login
+### 🏗 Architecture & Development
 
-- **Email**: `admin@plugpost.dev`
-- **Password**: `dmin123!`
-- **Admin Dashboard**: [http://localhost:3000/admin](http://localhost:3000/admin)
+- **[Project Architecture](./ARCHITECTURE.md)** - System design and component structure
+- **[Contributing Guidelines](../CONTRIBUTING.md)** - How to contribute to the project
 
-### 🚀 One-Line Install (Alternative)
 
-```bash
-curl -sSL https://raw.githubusercontent.com/yourusername/plugpost/main/install.sh | bash
-```
+### 🚀 Deployment & Operations
 
-### 📚 Quick Links
+- **[Deployment Guide](../DEPLOYMENT.md)** - Production deployment instructions
 
-- **[Getting Started Guide](./GETTING_STARTED.md)** - Step-by-step tutorial
-- **[Deployment Guide](./DEPLOYMENT.md)** - Production deployment
-- **[API Documentation](#api-documentation)** - REST API reference
 
 ---
 
-## 🚀 Features
+## 🎯 Quick Start for Developers
 
-### Core Features
-- **Modern Tech Stack**: Built with Next.js 14, TypeScript, Tailwind CSS, and Prisma
-- **Authentication**: Secure authentication with NextAuth.js supporting multiple providers
-- **Content Management**: Rich text editor with image uploads and media management
-- **User Roles**: Multi-level user system (Admin, Editor, Author, Subscriber)
-- **Responsive Design**: Mobile-first design that works on all devices
-
-### Advanced Features
-- **Search & Discovery**: Full-text search with autocomplete and advanced filtering
-- **Comment System**: Threaded comments with moderation and like functionality
-- **Analytics**: Comprehensive analytics dashboard with performance monitoring
-- **Security**: Advanced security features including rate limiting and input validation
-- **Performance**: Optimized for Core Web Vitals with performance monitoring
-- **SEO Optimized**: Built-in SEO features with meta tags and structured data
-
-## 🛠 Manual Setup (Optional)
-
-If you want to customize the setup or use your own database:
-
-### Prerequisites
-
-- Node.js 18+
-- PostgreSQL database (optional - uses free Neon by default)
-
-### Custom Setup
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/plugpost.git
-   cd plugpost
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Run setup (optional - happens automatically)**
-   ```bash
-   npm run setup
-   ```
-
-4. **Start development**
-   ```bash
-   npm run dev
-   ```
-
-### Custom Database
-
-To use your own PostgreSQL database, update the `.env` file:
-
-```env
-DATABASE_URL="postgresql://username:password@localhost:5432/plugpost"
-```
-
-## 🎯 Usage
-
-### User Roles
-
-- **Admin**: Full system access, user management, system settings
-- **Editor**: Content management, user moderation, analytics access
-- **Author**: Create and manage own posts, basic analytics
-- **Subscriber**: Read posts, comment, like content
-
-### Content Management
-
-1. **Creating Posts**
-   - Navigate to `/admin/posts/new`
-   - Use the rich text editor to create content
-   - Add categories, tags, and featured images
-   - Set publication status and scheduling
-
-2. **Managing Categories**
-   - Go to `/admin/categories`
-   - Create, edit, and organize content categories
-   - Set category colors and descriptions
-
-3. **User Management**
-   - Access `/admin/users`
-   - Manage user roles and permissions
-   - View user activity and statistics
-
-## 📚 API Documentation
-
-### Authentication Endpoints
-
-```
-POST /api/auth/register - Register new user
-POST /api/auth/signin - Sign in user
-POST /api/auth/signout - Sign out user
-POST /api/auth/reset-password - Reset password
-```
-
-### Posts Endpoints
-
-```
-GET /api/posts - Get posts with filtering and pagination
-POST /api/posts - Create new post (authenticated)
-GET /api/posts/[id] - Get specific post
-PUT /api/posts/[id] - Update post (authenticated)
-DELETE /api/posts/[id] - Delete post (authenticated)
-GET /api/posts/slug/[slug] - Get post by slug
-```
-
-### Comments Endpoints
-
-```
-GET /api/posts/[id]/comments - Get post comments
-POST /api/posts/[id]/comments - Create comment (authenticated)
-PUT /api/comments/[id] - Update comment (authenticated)
-DELETE /api/comments/[id] - Delete comment (authenticated)
-POST /api/comments/[id]/like - Toggle comment like (authenticated)
-```
-
-### Search Endpoints
-
-```
-GET /api/search - Global search across content
-GET /api/search/suggestions - Get search suggestions
-```
-
-## 🧪 Testing
-
-### Running Tests
+### 1. Instant Setup (Recommended)
 
 ```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run tests with coverage
-npm run test:coverage
+# Clone and setup in one command
+git clone https://github.com/your-username/plugpost.git && cd okoo-plugpost && npm install && npm run setup
 ```
 
-## 🚀 Deployment
+### 2. Manual Setup
 
-### Vercel Deployment (Recommended)
+```bash
+# Clone repository
+git clone https://github.com/your-username/plugpost.git
+cd plugpost
 
-1. **Connect to Vercel**
-   ```bash
-   npm i -g vercel
-   vercel
-   ```
+# Install dependencies
+npm install
 
-2. **Set Environment Variables**
-   Configure all environment variables in the Vercel dashboard
+# Set up environment
+cp .env.example .env.local
+# Edit .env.local with your database URL
 
-3. **Deploy**
-   ```bash
-   vercel --prod
-   ```
+# Set up database
+npx prisma db push
+npx prisma db seed
 
-## 🔧 Development
+# Start development
+npm run dev
+```
 
-### Development Commands
+### 3. Test the Platform
+
+Visit `http://localhost:3000` and login with:
+
+- **Admin**: admin@plugpost.dev / Admin123!
+- **Editor**: editor@plugpost.dev / Editor123!
+
+---
+
+## 🏗 Platform Architecture
+
+### Technology Stack
+
+**Frontend:**
+
+- **Framework**: Next.js 15.4.6 with App Router
+- **Language**: TypeScript 5
+- **Styling**: Tailwind CSS 4
+- **UI Components**: Custom components with Radix UI patterns
+- **Icons**: Lucide React
+- **Rich Text Editor**: TipTap with extensions
+
+**Backend:**
+
+- **API**: Next.js API Routes
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: NextAuth.js with multiple providers
+- **File Upload**: Cloudinary integration
+- **Validation**: Zod schemas
+- **Security**: bcryptjs, DOMPurify, rate limiting
+
+**Development:**
+
+- **Testing**: Jest + React Testing Library
+- **Linting**: ESLint with Next.js config
+- **Type Checking**: TypeScript strict mode
+- **Package Manager**: npm
+
+### Key Features
+
+**Content Management:**
+
+- Rich text editor with advanced formatting
+- Post scheduling and version control
+- Category and tag management
+- SEO optimization
+- Analytics tracking
+
+**User Management:**
+
+- Role-based access control (Admin, Editor, Contributor, Subscriber)
+- OAuth authentication (Google, GitHub, Discord)
+- User profiles and social features
+- Follow system and notifications
+
+**Social Features:**
+
+- Comment system with threading
+- Like and bookmark functionality
+- User following and notifications
+- Newsletter subscription
+- Social sharing
+
+**Admin Features:**
+
+- Comprehensive admin dashboard
+- User management and moderation
+- Content management and bulk operations
+- Analytics and performance monitoring
+- System configuration
+
+---
+
+## 🔧 Development Workflow
+
+### 1. Local Development
 
 ```bash
 # Start development server
 npm run dev
 
-# Build for production
-npm run build
+# Run tests in watch mode
+npm run test:watch
 
-# Start production server
-npm start
+# Open database browser
+npm run db:studio
 
-# Run linting
-npm run lint
-
-# Database commands
-npx prisma studio      # Open Prisma Studio
-npx prisma db push     # Push schema changes
-npx prisma generate    # Generate Prisma client
-npx prisma db seed     # Seed database
+# Check types
+npm run type-check
 ```
 
-## 🤝 Contributing
+### 2. Making Changes
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+```bash
+# Create feature branch
+git checkout -b feature/your-feature
 
-## 📄 License
+# Make changes and test
+npm test
 
-This project is licensed under the MIT License.
+# Commit changes
+git add .
+git commit -m "feat: add your feature"
+
+# Push and create PR
+git push origin feature/your-feature
+```
+
+### 3. Database Changes
+
+```bash
+# Modify schema in prisma/schema.prisma
+# Then push changes
+npx prisma db push
+
+# Or create migration for production
+npx prisma migrate dev --name your-migration-name
+```
 
 ---
 
-Built with ❤️ by the PlugPost team
+## 📊 Platform Statistics
+
+### Codebase Metrics
+
+- **Total Files**: 200+ TypeScript/React files
+- **API Endpoints**: 50+ RESTful endpoints
+- **UI Components**: 30+ reusable components
+- **Database Models**: 15+ Prisma models
+- **Test Coverage**: 70%+ coverage target
+
+### Feature Count
+
+- **Authentication**: 5+ providers and methods
+- **Content Management**: 20+ content features
+- **Social Features**: 10+ interaction features
+- **Admin Features**: 15+ administrative tools
+- **API Features**: 50+ endpoints
+- **Security Features**: 10+ security measures
+
+---
+
+## 🎨 UI Component Library
+
+### Available Components
+
+**Layout Components:**
+
+- `Card`, `CardHeader`, `CardContent`, `CardFooter`
+- `Container`, `Section`, `Grid`
+- `Sidebar`, `Header`, `Footer`
+
+**Form Components:**
+
+- `Button`, `Input`, `Textarea`, `Select`
+- `Checkbox`, `Radio`, `Switch`
+- `Form`, `FormField`, `FormError`
+
+**Feedback Components:**
+
+- `Toast`, `Modal`, `Alert`
+- `Loading`, `Skeleton`, `Progress`
+- `Badge`, `Tooltip`, `Popover`
+
+**Navigation Components:**
+
+- `Pagination`, `Breadcrumb`, `Tabs`
+- `Dropdown`, `Menu`, `Search`
+
+**Content Components:**
+
+- `RichTextEditor`, `CodeBlock`, `Image`
+- `CommentSection`, `UserProfile`, `PostCard`
+
+---
+
+## 🔍 API Overview
+
+### Endpoint Categories
+
+**Authentication** (4 endpoints)
+
+- User registration, login, logout, password reset
+
+**Posts** (15 endpoints)
+
+- CRUD operations, analytics, versioning, scheduling
+
+**Comments** (5 endpoints)
+
+- Threaded comments, moderation, likes
+
+**Users** (6 endpoints)
+
+- Profile management, following, admin operations
+
+**Categories & Tags** (8 endpoints)
+
+- Content organization and management
+
+**Search** (3 endpoints)
+
+- Global search, suggestions, filtering
+
+**Admin** (10 endpoints)
+
+- Dashboard stats, user management, bulk operations
+
+**File Upload** (2 endpoints)
+
+- Image upload and management
+
+**Analytics** (5 endpoints)
+
+- Performance tracking, user behavior
+
+**Newsletter** (2 endpoints)
+
+- Subscription management
+
+---
+
+## 🧪 Testing Strategy
+
+### Test Types
+
+**Unit Tests:**
+- Component testing with React Testing Library
+- Utility function testing
+- API endpoint testing
+
+**Integration Tests:**
+
+- Authentication flows
+- Database operations
+- API endpoint integration
+
+**E2E Tests:**
+
+- User workflows
+- Admin operations
+- Content creation flows
+
+### Test Data
+
+The platform includes comprehensive test data:
+
+- 4 test user accounts (one for each role)
+- Sample posts and comments
+- Categories and tags
+- User interactions (likes, follows, bookmarks)
+
+---
+
+## 🔐 Security Considerations
+
+### Built-in Security Features
+
+**Authentication Security:**
+
+- Secure password hashing with bcryptjs
+- JWT session management
+- OAuth provider integration
+- Session timeout and refresh
+
+**Input Validation:**
+
+- Zod schema validation for all inputs
+- HTML sanitization with DOMPurify
+- File upload validation
+- SQL injection prevention via Prisma
+
+**API Security:**
+
+- Rate limiting
+- CORS configuration
+- Role-based access control
+- Request/response validation
+
+**Data Protection:**
+
+- Environment variable security
+- Database connection encryption
+- Secure headers configuration
+- Content Security Policy
+
+---
+
+## 📈 Performance Features
+
+### Optimization Techniques
+
+**Frontend Performance:**
+
+- Next.js automatic code splitting
+- Image optimization with next/image
+- Lazy loading for components
+- Bundle size optimization
+
+**Backend Performance:**
+
+- Database query optimization
+- Connection pooling
+- Caching strategies
+- API response optimization
+
+**Monitoring:**
+
+- Core Web Vitals tracking
+- Performance metrics collection
+- Error tracking with Sentry
+- Analytics integration
+
+---
+
+## 🤝 Contributing
+
+### Development Process
+
+1. **Fork the repository**
+2. **Create a feature branch**
+3. **Make your changes**
+4. **Add tests for new features**
+5. **Ensure all tests pass**
+6. **Submit a pull request**
+
+### Code Standards
+
+- **TypeScript**: Strict mode enabled
+- **ESLint**: Next.js configuration
+- **Prettier**: Automatic code formatting
+- **Testing**: Minimum 70% coverage
+- **Documentation**: Update docs for new features
+
+---
+
+## 📞 Support & Resources
+
+### Getting Help
+
+- **Documentation**: Check this docs folder first
+- **Issues**: Create GitHub issues for bugs
+- **Discussions**: Use GitHub discussions for questions
+- **Community**: Join our Discord server
+
+### Useful Links
+
+- **Live Demo**: <https://plugpost-demo.vercel.app>
+- **GitHub Repository**: <https://github.com/your-username/plugpost>
+- **Documentation Site**: <https://docs.plugpost.com>
+- **Community Discord**: <https://discord.gg/plugpost>
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License. See the [LICENSE](../LICENSE) file for details.
+
+---
+
+*Last updated: Augest 2025*

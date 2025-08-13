@@ -1,13 +1,13 @@
 # PlugPost Developer Documentation
 
-Welcome to the PlugPost platform developer documentation. This comprehensive guide will help you understand, set up, and contribute to the PlugPost blogging platform.
+Welcome to the Okoo-PlugPost platform developer documentation. This comprehensive guide will help you understand, set up, and contribute to the PlugPost blogging platform.
 
 ## 📚 Documentation Index
 
 ### 🚀 Getting Started
 
-- **[Developer Setup Guide](./DEVELOPER_SETUP.md)** - Complete setup instructions for new developers
-- **[Test Users & Credentials](./TEST_USERS.md)** - Pre-configured test accounts for all user roles
+- **[Developer Setup Guide](./docs//DEVELOPER_SETUP.md)** - Complete setup instructions for new developers
+- **[Test Users & Credentials](./docs/TEST_USERS.md)** - Pre-configured test accounts for all user roles
 - **[Environment Configuration](../.env.example)** - Comprehensive environment variable guide
 
 ### 📖 API Reference
@@ -20,14 +20,12 @@ Welcome to the PlugPost platform developer documentation. This comprehensive gui
 
 - **[Project Architecture](./ARCHITECTURE.md)** - System design and component structure
 - **[Contributing Guidelines](../CONTRIBUTING.md)** - How to contribute to the project
-- **[Testing Guide](./TESTING.md)** - Testing strategies and best practices
-- **[Performance Guide](./PERFORMANCE.md)** - Optimization and monitoring
+
 
 ### 🚀 Deployment & Operations
 
 - **[Deployment Guide](../DEPLOYMENT.md)** - Production deployment instructions
-- **[Security Guide](./SECURITY.md)** - Security best practices and configuration
-- **[Monitoring & Analytics](./MONITORING.md)** - Performance monitoring and analytics setup
+
 
 ---
 
@@ -37,7 +35,7 @@ Welcome to the PlugPost platform developer documentation. This comprehensive gui
 
 ```bash
 # Clone and setup in one command
-git clone https://github.com/your-username/plugpost.git && cd plugpost && npm install && npm run setup
+git clone https://github.com/your-username/plugpost.git && cd okoo-plugpost && npm install && npm run setup
 ```
 
 ### 2. Manual Setup
