@@ -10,6 +10,8 @@ Welcome to the Okoo-PlugPost platform developer documentation. This comprehensiv
 - **[Test Users & Credentials](./docs/TEST_USERS.md)** - Pre-configured test accounts for all user roles
 - **[Environment Configuration](../.env.example)** - Comprehensive environment variable guide
 
+[![Watch the Demo](/Okoo-PlugPost.png)](https://www.youtube.com/watch?v=vNWuQGS_hrk)
+
 ### 📖 API Reference
 
 - **[Complete API Documentation](./API_DOCUMENTATION.md)** - All 50+ API endpoints with examples
