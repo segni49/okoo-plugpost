@@ -14,19 +14,15 @@ Welcome to the Okoo-PlugPost platform developer documentation. This comprehensiv
 
 ### 📖 API Reference
 
-- **[Complete API Documentation](./API_DOCUMENTATION.md)** - All 50+ API endpoints with examples
-- **[Authentication Guide](./AUTHENTICATION.md)** - Authentication flows and security
-- **[Database Schema](./DATABASE_SCHEMA.md)** - Complete database structure and relationships
+- **[Complete API Documentation](./docs/API_DOCUMENTATION.md)** - All 50+ API endpoints with examples
 
 ### 🏗 Architecture & Development
 
-- **[Project Architecture](./ARCHITECTURE.md)** - System design and component structure
-- **[Contributing Guidelines](../CONTRIBUTING.md)** - How to contribute to the project
 
 
 ### 🚀 Deployment & Operations
 
-- **[Deployment Guide](../DEPLOYMENT.md)** - Production deployment instructions
+- **[Deployment Guide](./DEPLOYMENT.md)** - Production deployment instructions
 
 
 ---
@@ -37,14 +33,14 @@ Welcome to the Okoo-PlugPost platform developer documentation. This comprehensiv
 
 ```bash
 # Clone and setup in one command
-git clone https://github.com/your-username/plugpost.git && cd okoo-plugpost && npm install && npm run setup
+git clone https://github.com/segni49/okoo-plugpost && cd okoo-plugpost && npm install && npm run setup
 ```
 
 ### 2. Manual Setup
 
 ```bash
 # Clone repository
-git clone https://github.com/your-username/plugpost.git
+git clone https://github.com/segni49/okoo-plugpost
 cd plugpost
 
 # Install dependencies
