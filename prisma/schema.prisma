@@ -95,6 +95,13 @@ model User {
   following     Follow[] @relation("UserFollowing")
   notifications Notification[]
 
+  // Advanced features relations
+  auditLogs            AuditLog[]
+  contentRecommendations ContentRecommendation[]
+  userSessions         UserSession[]
+  workflowTransitions  WorkflowTransition[]
+  postVersions         PostVersion[]
+
   @@map("users")
 }
 
@@ -174,6 +181,10 @@ model Post {
   bookmarks Bookmark[]
   versions  PostVersion[]
 
+  // Advanced features relations
+  contentRecommendations ContentRecommendation[]
+  workflowTransitions    WorkflowTransition[]
+
   @@map("posts")
 }
 
@@ -194,12 +205,20 @@ model PostVersion {
   postId    String
   title     String
   content   String   @db.Text
+  excerpt   String?  @db.Text
   version   Int
+  metadata  Json?
+  createdBy String
+  isActive  Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post          Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdByUser User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
 
   @@unique([postId, version])
+  @@index([postId])
+  @@index([createdBy])
+  @@index([isActive])
   @@map("post_versions")
 }
 
@@ -352,4 +371,84 @@ model PerformanceMetric {
   @@index([metric, timestamp])
   @@index([timestamp])
   @@map("performance_metrics")
+}
+
+// Advanced security and audit logging
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  resource   String
+  resourceId String?
+  details    Json
+  ipAddress  String
+  userAgent  String
+  timestamp  DateTime @default(now())
+  severity   String   @default("low") // low, medium, high, critical
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([resource])
+  @@index([timestamp])
+  @@index([severity])
+  @@index([ipAddress])
+}
+
+// Content recommendations and AI features
+model ContentRecommendation {
+  id          String   @id @default(cuid())
+  userId      String
+  postId      String
+  score       Float    @default(0.0)
+  reason      String   // "similar_content", "user_interest", "trending", etc.
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+  @@index([score])
+}
+
+// Real-time features tracking
+model UserSession {
+  id          String   @id @default(cuid())
+  userId      String
+  socketId    String   @unique
+  isActive    Boolean  @default(true)
+  lastSeen    DateTime @default(now())
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isActive])
+  @@index([lastSeen])
+}
+
+// Advanced workflow management
+model WorkflowTransition {
+  id        String   @id @default(cuid())
+  postId    String
+  fromState String
+  toState   String
+  action    String
+  userId    String
+  comment   String?  @db.Text
+  timestamp DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([userId])
+  @@index([timestamp])
+  @@index([action])
 }
